@@ -23,3 +23,8 @@ Or
 ```bash
 open ./Build/Ladybird.app
 ```
+
+## Screenshots
+
+![Screenshot1](Meta/Screenshots/Screenshot1.png)
+![Screenshot2](Meta/Screenshots/Screenshot2.png)
