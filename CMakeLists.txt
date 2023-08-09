@@ -10,6 +10,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 list(APPEND CMAKE_MODULE_PATH "$ENV{SERENITY_SOURCE_DIR}/Meta/CMake")
 include(Meta/CMake/Lagom.cmake)
@@ -25,5 +26,16 @@ add_executable(Ladybird MACOSX_BUNDLE
 )
 
 target_compile_options(Ladybird PRIVATE -DAK_DONT_REPLACE_STD -DUSING_AK_GLOBALLY=0 -fobjc-arc)
-target_link_libraries(Ladybird PRIVATE LibCore ${COCOA_LIBRARY})
-target_include_directories(Ladybird PRIVATE .)
+target_link_libraries(Ladybird PRIVATE ${COCOA_LIBRARY}
+   LibCore
+   LibFileSystem
+   LibGfx
+   LibGUI
+   LibIPC
+   LibJS
+   LibWebView
+   LibProtocol
+   LibSQL
+   ladybird
+)
+

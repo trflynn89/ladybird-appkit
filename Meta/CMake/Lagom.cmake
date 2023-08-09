@@ -1,4 +1,6 @@
 set(BUILD_LAGOM ON CACHE INTERNAL "Build all Lagom targets")
+set(ENABLE_LAGOM_LADYBIRD ON CACHE INTERNAL "Build ladybird targets")
+set(ENABLE_QT OFF CACHE INTERNAL "Enable Qt GUI for ladybird")
 
 set(LAGOM_SOURCE_DIR "$ENV{SERENITY_SOURCE_DIR}/Meta/Lagom")
 set(LAGOM_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/Lagom")
