@@ -1,12 +1,14 @@
 set(BUILD_LAGOM ON CACHE INTERNAL "Build all Lagom targets")
+set(ENABLE_LAGOM_LADYBIRD ON CACHE INTERNAL "Build ladybird targets")
+set(ENABLE_QT OFF CACHE INTERNAL "Enable Qt GUI for ladybird")
 
-set(LAGOM_SOURCE_DIR "$ENV{SERENITY_SOURCE_DIR}/Meta/Lagom")
+set(LAGOM_SOURCE_DIR "${SERENITY_SOURCE_DIR}/Meta/Lagom")
 set(LAGOM_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/Lagom")
 
 # FIXME: Setting target_include_directories on Lagom libraries might make this unnecessary?
-include_directories($ENV{SERENITY_SOURCE_DIR})
-include_directories($ENV{SERENITY_SOURCE_DIR}/Userland/Services)
-include_directories($ENV{SERENITY_SOURCE_DIR}/Userland/Libraries)
+include_directories(${SERENITY_SOURCE_DIR})
+include_directories(${SERENITY_SOURCE_DIR}/Userland/Services)
+include_directories(${SERENITY_SOURCE_DIR}/Userland/Libraries)
 include_directories(${LAGOM_BINARY_DIR})
 include_directories(${LAGOM_BINARY_DIR}/Userland/Services)
 include_directories(${LAGOM_BINARY_DIR}/Userland/Libraries)
