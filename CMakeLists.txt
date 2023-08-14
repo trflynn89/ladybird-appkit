@@ -24,6 +24,6 @@ add_executable(Ladybird MACOSX_BUNDLE
     UI/TabController.mm
 )
 
-target_compile_options(Ladybird PRIVATE -DAK_DONT_REPLACE_STD -DUSING_AK_GLOBALLY=0 -fobjc-arc)
+target_compile_options(Ladybird PRIVATE -DAK_DONT_REPLACE_STD -fobjc-arc)
 target_link_libraries(Ladybird PRIVATE LibCore ${COCOA_LIBRARY})
 target_include_directories(Ladybird PRIVATE .)

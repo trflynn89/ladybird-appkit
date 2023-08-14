@@ -6,7 +6,7 @@
 
 #pragma once
 
-#import <Cocoa/Cocoa.h>
+#import <System/Cocoa.h>
 
 @class Tab;
 @class TabController;

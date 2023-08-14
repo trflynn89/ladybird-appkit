@@ -6,8 +6,8 @@
 
 #pragma once
 
-#import <System/Cocoa.h>
+#include "Detail/Header.h"
 
-@interface Tab : NSWindow
+#import <Cocoa/Cocoa.h>
 
-@end
+#include "Detail/Footer.h"
