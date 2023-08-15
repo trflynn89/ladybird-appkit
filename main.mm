@@ -4,7 +4,10 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
+#include <LibCore/EventLoop.h>
+
 #import <Application/ApplicationDelegate.h>
+#import <Application/EventLoopImplementation.h>
 #import <UI/Tab.h>
 #import <UI/TabController.h>
 
@@ -16,9 +19,11 @@ int main()
 {
     [NSApplication sharedApplication];
 
+    Core::EventLoopManager::install(*new CFEventLoopManager);
+    Core::EventLoop event_loop;
+
     [NSApp setDelegate:[[ApplicationDelegate alloc] init]];
     [NSApp activateIgnoringOtherApps:YES];
-    [NSApp run];
 
-    return 0;
+    return event_loop.exec();
 }

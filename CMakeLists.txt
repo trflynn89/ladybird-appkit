@@ -23,6 +23,7 @@ find_library(COCOA_LIBRARY Cocoa)
 add_executable(Ladybird MACOSX_BUNDLE
     main.mm
     Application/ApplicationDelegate.mm
+    Application/EventLoopImplementation.mm
     UI/Tab.mm
     UI/TabController.mm
     Utilities/Conversions.mm
