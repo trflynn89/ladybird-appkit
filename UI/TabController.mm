@@ -213,6 +213,11 @@ static NSString* const TOOLBAR_TAB_OVERVIEW_IDENTIFIER = @"ToolbarTabOverviewIde
     [delegate remove_tab:self];
 }
 
+- (void)windowDidResize:(NSNotification*)notification
+{
+    [[self tab].web_view handle_resize];
+}
+
 #pragma mark - NSToolbarDelegate
 
 - (NSToolbarItem*)toolbar:(NSToolbar*)toolbar

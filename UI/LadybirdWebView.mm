@@ -60,6 +60,12 @@
     m_web_view_bridge->load(url_string);
 }
 
+- (void)handle_resize
+{
+    auto viewport_rect = ns_rect_to_gfx_rect([self frame]);
+    m_web_view_bridge->set_viewport_rect(viewport_rect);
+}
+
 #pragma mark - Private methods
 
 - (void)set_web_view_callbacks
@@ -95,12 +101,6 @@
 }
 
 #pragma mark - NSView
-
-- (void)viewDidMoveToWindow
-{
-    auto viewport_rect = ns_rect_to_gfx_rect([self frame]);
-    m_web_view_bridge->set_viewport_rect(viewport_rect);
-}
 
 - (void)drawRect:(NSRect)rect
 {
