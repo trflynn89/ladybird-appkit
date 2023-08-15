@@ -37,7 +37,9 @@
             screen_rects.unchecked_append(screen_rect);
         }
 
-        m_web_view_bridge = MUST(LadybirdWebViewBridge::create(move(screen_rects)));
+        auto device_pixel_ratio = [[NSScreen mainScreen] backingScaleFactor];
+
+        m_web_view_bridge = MUST(LadybirdWebViewBridge::create(move(screen_rects), device_pixel_ratio));
         [self set_web_view_callbacks];
     }
 
@@ -116,9 +118,14 @@
     static constexpr size_t COMPONENTS_PER_PIXEL = 4;
 
     auto context = [[NSGraphicsContext currentContext] CGContext];
-    auto provider = CGDataProviderCreateWithData(nil, bitmap.scanline_u8(0), bitmap.size_in_bytes(), nil);
+    CGContextSaveGState(context);
 
-    CGImageRef image = CGImageCreate(
+    CGContextScaleCTM(context, m_web_view_bridge->inverse_device_pixel_ratio(), m_web_view_bridge->inverse_device_pixel_ratio());
+
+    auto provider = CGDataProviderCreateWithData(nil, bitmap.scanline_u8(0), bitmap.size_in_bytes(), nil);
+    auto image_rect = CGRectMake(0, 0, bitmap_size.width(), bitmap_size.height());
+
+    auto image = CGImageCreate(
         bitmap_size.width(),
         bitmap_size.height(),
         BITS_PER_COMPONENT,
@@ -131,8 +138,10 @@
         NO,
         kCGRenderingIntentDefault);
 
-    CGContextDrawImage(context, NSRectToCGRect(rect), image);
+    CGContextDrawImage(context, image_rect, image);
     CGImageRelease(image);
+
+    CGContextRestoreGState(context);
 
     [super drawRect:rect];
 }

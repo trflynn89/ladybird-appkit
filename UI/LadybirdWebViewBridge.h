@@ -12,8 +12,11 @@
 
 class LadybirdWebViewBridge final : public WebView::ViewImplementation {
 public:
-    static ErrorOr<NonnullOwnPtr<LadybirdWebViewBridge>> create(Vector<Gfx::IntRect> screen_rects);
+    static ErrorOr<NonnullOwnPtr<LadybirdWebViewBridge>> create(Vector<Gfx::IntRect> screen_rects, float device_pixel_ratio);
     virtual ~LadybirdWebViewBridge() override;
+
+    float device_pixel_ratio() const { return m_device_pixel_ratio; }
+    float inverse_device_pixel_ratio() const { return m_inverse_device_pixel_ratio; }
 
     void set_viewport_rect(Gfx::IntRect);
 
@@ -25,7 +28,7 @@ public:
     Function<void()> on_ready_to_paint;
 
 private:
-    explicit LadybirdWebViewBridge(Vector<Gfx::IntRect> screen_rects);
+    LadybirdWebViewBridge(Vector<Gfx::IntRect> screen_rects, float device_pixel_ratio);
 
     virtual void notify_server_did_layout(Badge<WebView::WebContentClient>, Gfx::IntSize content_size) override;
     virtual void notify_server_did_paint(Badge<WebView::WebContentClient>, i32 bitmap_id, Gfx::IntSize) override;
@@ -57,4 +60,6 @@ private:
 
     Vector<Gfx::IntRect> m_screen_rects;
     Gfx::IntRect m_viewport_rect;
+
+    float m_inverse_device_pixel_ratio { 1.0 };
 };
