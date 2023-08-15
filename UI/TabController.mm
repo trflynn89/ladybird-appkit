@@ -5,6 +5,7 @@
  */
 
 #import <Application/ApplicationDelegate.h>
+#import <UI/LadybirdWebView.h>
 #import <UI/Tab.h>
 #import <UI/TabController.h>
 
@@ -61,7 +62,18 @@ static NSString* const TOOLBAR_TAB_OVERVIEW_IDENTIFIER = @"ToolbarTabOverviewIde
     [self.window makeFirstResponder:self.location_toolbar_item.view];
 }
 
+- (void)set_location_toolbar_text:(NSString*)location
+{
+    auto* view = (NSSearchField*)[self.location_toolbar_item view];
+    [view setStringValue:location];
+}
+
 #pragma mark - Private methods
+
+- (Tab*)tab
+{
+    return (Tab*)[self window];
+}
 
 - (void)navigate_back:(id)sender
 {
@@ -247,7 +259,7 @@ static NSString* const TOOLBAR_TAB_OVERVIEW_IDENTIFIER = @"ToolbarTabOverviewIde
     }
 
     auto* url = [[text_view textStorage] string];
-    NSLog(@"TODO: Implement navigation: %@", url);
+    [[self tab].web_view load:url];
 
     [self.window makeFirstResponder:nil];
     return YES;

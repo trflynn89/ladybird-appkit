@@ -24,6 +24,8 @@ add_executable(Ladybird MACOSX_BUNDLE
     main.mm
     Application/ApplicationDelegate.mm
     Application/EventLoopImplementation.mm
+    UI/LadybirdWebView.mm
+    UI/LadybirdWebViewBridge.cpp
     UI/Tab.mm
     UI/TabController.mm
     Utilities/Conversions.mm
@@ -32,6 +34,7 @@ add_executable(Ladybird MACOSX_BUNDLE
 target_compile_options(Ladybird PRIVATE
     -fobjc-arc
     -DAK_DONT_REPLACE_STD
+    -Wno-deprecated-anon-enum-enum-conversion # Required for CGImageCreate
     -Wno-expansion-to-defined
     -Wno-user-defined-literals
 )
