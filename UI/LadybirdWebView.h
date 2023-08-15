@@ -11,5 +11,6 @@
 @interface LadybirdWebView : NSView
 
 - (void)load:(NSString*)url;
+- (void)handle_resize;
 
 @end
