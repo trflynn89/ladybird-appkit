@@ -14,23 +14,33 @@
 #include <LibWeb/Crypto/Crypto.h>
 #include <UI/LadybirdWebViewBridge.h>
 
-ErrorOr<NonnullOwnPtr<LadybirdWebViewBridge>> LadybirdWebViewBridge::create(Vector<Gfx::IntRect> screen_rects)
+static Gfx::IntSize scale_size_for_device(Gfx::IntSize size, float device_pixel_ratio)
 {
-    return adopt_nonnull_own_or_enomem(new (nothrow) LadybirdWebViewBridge(move(screen_rects)));
+    return size.to_type<float>().scaled_by(device_pixel_ratio).to_type<int>();
 }
 
-LadybirdWebViewBridge::LadybirdWebViewBridge(Vector<Gfx::IntRect> screen_rects)
+ErrorOr<NonnullOwnPtr<LadybirdWebViewBridge>> LadybirdWebViewBridge::create(Vector<Gfx::IntRect> screen_rects, float device_pixel_ratio)
+{
+    return adopt_nonnull_own_or_enomem(new (nothrow) LadybirdWebViewBridge(move(screen_rects), device_pixel_ratio));
+}
+
+LadybirdWebViewBridge::LadybirdWebViewBridge(Vector<Gfx::IntRect> screen_rects, float device_pixel_ratio)
     : m_screen_rects(move(screen_rects))
 {
+    m_device_pixel_ratio = device_pixel_ratio;
+    m_inverse_device_pixel_ratio = 1.0 / device_pixel_ratio;
+
     create_client(WebView::EnableCallgrindProfiling::No);
 }
 
 LadybirdWebViewBridge::~LadybirdWebViewBridge() = default;
 
-void LadybirdWebViewBridge::set_viewport_rect(Gfx::IntRect rect)
+void LadybirdWebViewBridge::set_viewport_rect(Gfx::IntRect viewport_rect)
 {
-    m_viewport_rect = rect;
-    client().async_set_viewport_rect(rect);
+    viewport_rect.set_size(scale_size_for_device(viewport_rect.size(), m_device_pixel_ratio));
+    m_viewport_rect = viewport_rect;
+
+    client().async_set_viewport_rect(m_viewport_rect);
     handle_resize();
     request_repaint();
 }
