@@ -8,9 +8,8 @@
 
 #import <System/Cocoa.h>
 
-@interface TabController : NSWindowController <NSWindowDelegate>
+@interface LadybirdWebView : NSView
 
-- (void)focus_location_toolbar_item;
-- (void)set_location_toolbar_text:(NSString*)location;
+- (void)load:(NSString*)url;
 
 @end

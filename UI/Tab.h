@@ -8,6 +8,10 @@
 
 #import <System/Cocoa.h>
 
+@class LadybirdWebView;
+
 @interface Tab : NSWindow
+
+@property (nonatomic, strong) LadybirdWebView* web_view;
 
 @end
