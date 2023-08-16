@@ -4,9 +4,6 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-#include <AK/DeprecatedString.h>
-#include <AK/String.h>
-#include <AK/StringView.h>
 #include <AK/URL.h>
 #include <UI/LadybirdWebViewBridge.h>
 
@@ -48,16 +45,9 @@
 
 #pragma mark - Public methods
 
-- (void)load:(NSString*)url
+- (void)load:(URL const&)url
 {
-    auto url_string = ns_string_to_string(url);
-
-    if (url_string.starts_with('/'))
-        url_string = MUST(String::formatted("file://{}", url_string));
-    else if (!URL { url_string }.is_valid())
-        url_string = MUST(String::formatted("https://{}", url_string));
-
-    m_web_view_bridge->load(url_string);
+    m_web_view_bridge->load(url);
 }
 
 - (void)handle_resize

@@ -29,6 +29,7 @@ add_executable(Ladybird MACOSX_BUNDLE
     UI/Tab.mm
     UI/TabController.mm
     Utilities/Conversions.mm
+    Utilities/URL.mm
 )
 
 target_compile_options(Ladybird PRIVATE

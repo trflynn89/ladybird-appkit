@@ -8,6 +8,7 @@
 #import <UI/LadybirdWebView.h>
 #import <UI/Tab.h>
 #import <UI/TabController.h>
+#import <Utilities/URL.h>
 
 #if !__has_feature(objc_arc)
 #    error "This project requires ARC"
@@ -263,7 +264,8 @@ static NSString* const TOOLBAR_TAB_OVERVIEW_IDENTIFIER = @"ToolbarTabOverviewIde
         return NO;
     }
 
-    auto* url = [[text_view textStorage] string];
+    auto* url_string = [[text_view textStorage] string];
+    auto url = sanitize_url(url_string);
     [[self tab].web_view load:url];
 
     [self.window makeFirstResponder:nil];

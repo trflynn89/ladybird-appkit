@@ -4,17 +4,14 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-#include <AK/DeprecatedString.h>
 #include <AK/StringView.h>
 #include <AK/URL.h>
-#include <AK/Vector.h>
 #include <BrowserSettings/Defaults.h>
-#include <Ladybird/Utilities.h>
 
 #import <UI/LadybirdWebView.h>
 #import <UI/Tab.h>
 #import <UI/TabController.h>
-#import <Utilities/Conversions.h>
+#import <Utilities/URL.h>
 
 #if !__has_feature(objc_arc)
 #    error "This project requires ARC"
@@ -22,22 +19,6 @@
 
 static constexpr CGFloat const WINDOW_WIDTH = 1000;
 static constexpr CGFloat const WINDOW_HEIGHT = 800;
-
-static NSString* rebase_url_on_serenity_resource_root(StringView default_url)
-{
-    URL url { default_url };
-    Vector<DeprecatedString> paths;
-
-    for (auto segment : s_serenity_resource_root.split('/'))
-        paths.append(move(segment));
-
-    for (size_t i = 0; i < url.path_segment_count(); ++i)
-        paths.append(url.path_segment_at_index(i));
-
-    url.set_paths(move(paths));
-
-    return string_to_ns_string(url.serialize());
-}
 
 @implementation Tab
 
@@ -79,7 +60,7 @@ static NSString* rebase_url_on_serenity_resource_root(StringView default_url)
 
         [self setContentView:scroll_view];
 
-        auto* new_tab_url = rebase_url_on_serenity_resource_root(Browser::default_new_tab_url);
+        auto new_tab_url = rebase_url_on_serenity_resource_root(Browser::default_new_tab_url);
         [self.web_view load:new_tab_url];
     }
 

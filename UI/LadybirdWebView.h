@@ -6,11 +6,14 @@
 
 #pragma once
 
+#include <AK/Forward.h>
+
 #import <System/Cocoa.h>
 
 @interface LadybirdWebView : NSClipView
 
-- (void)load:(NSString*)url;
+- (void)load:(URL const&)url;
+
 - (void)handle_resize;
 - (void)handle_scroll;
 
