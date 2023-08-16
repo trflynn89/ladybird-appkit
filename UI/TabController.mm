@@ -22,6 +22,9 @@ static NSString* const TOOLBAR_NEW_TAB_IDENTIFIER = @"ToolbarNewTabIdentifier";
 static NSString* const TOOLBAR_TAB_OVERVIEW_IDENTIFIER = @"ToolbarTabOverviewIdentifer";
 
 @interface TabController () <NSToolbarDelegate, NSSearchFieldDelegate>
+{
+    URL m_url;
+}
 
 @property (nonatomic, strong) NSToolbar* toolbar;
 @property (nonatomic, strong) NSArray* toolbar_identifiers;
@@ -43,7 +46,7 @@ static NSString* const TOOLBAR_TAB_OVERVIEW_IDENTIFIER = @"ToolbarTabOverviewIde
 @synthesize new_tab_toolbar_item = _new_tab_toolbar_item;
 @synthesize tab_overview_toolbar_item = _tab_overview_toolbar_item;
 
-- (instancetype)init
+- (instancetype)init:(URL)url
 {
     if (self = [super init]) {
         self.toolbar = [[NSToolbar alloc] initWithIdentifier:TOOLBAR_IDENTIFIER];
@@ -51,6 +54,8 @@ static NSString* const TOOLBAR_TAB_OVERVIEW_IDENTIFIER = @"ToolbarTabOverviewIde
         [self.toolbar setDisplayMode:NSToolbarDisplayModeIconOnly];
         [self.toolbar setAllowsUserCustomization:NO];
         [self.toolbar setSizeMode:NSToolbarSizeModeRegular];
+
+        m_url = move(url);
     }
 
     return self;
@@ -89,7 +94,7 @@ static NSString* const TOOLBAR_TAB_OVERVIEW_IDENTIFIER = @"ToolbarTabOverviewIde
 - (void)create_new_tab:(id)sender
 {
     auto* delegate = (ApplicationDelegate*)[NSApp delegate];
-    [delegate create_new_tab];
+    [delegate create_new_tab:OptionalNone {}];
 }
 
 - (void)show_tab_overview:(id)sender
@@ -195,7 +200,7 @@ static NSString* const TOOLBAR_TAB_OVERVIEW_IDENTIFIER = @"ToolbarTabOverviewIde
 
 - (IBAction)showWindow:(id)sender
 {
-    self.window = [[Tab alloc] init];
+    self.window = [[Tab alloc] init:m_url];
     [self.window setDelegate:self];
 
     [self.window setToolbar:self.toolbar];

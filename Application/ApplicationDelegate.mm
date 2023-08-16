@@ -4,15 +4,22 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
+#include <BrowserSettings/Defaults.h>
+
 #import <Application/ApplicationDelegate.h>
 #import <UI/Tab.h>
 #import <UI/TabController.h>
+#import <Utilities/URL.h>
 
 #if !__has_feature(objc_arc)
 #    error "This project requires ARC"
 #endif
 
 @interface ApplicationDelegate ()
+{
+    Optional<URL> m_initial_url;
+    URL m_new_tab_page_url;
+}
 
 @property (nonatomic, strong) NSMutableArray<TabController*>* managed_tabs;
 
@@ -27,7 +34,7 @@
 
 @implementation ApplicationDelegate
 
-- (instancetype)init
+- (instancetype)init:(Optional<URL>)initial_url
 {
     if (self = [super init]) {
         [NSApp setMainMenu:[[NSMenu alloc] init]];
@@ -40,6 +47,9 @@
         [[NSApp mainMenu] addItem:[self create_help_menu]];
 
         self.managed_tabs = [[NSMutableArray alloc] init];
+
+        m_initial_url = move(initial_url);
+        m_new_tab_page_url = rebase_url_on_serenity_resource_root(Browser::default_new_tab_url);
     }
 
     return self;
@@ -47,12 +57,12 @@
 
 #pragma mark - Public methods
 
-- (TabController*)create_new_tab
+- (TabController*)create_new_tab:(Optional<URL> const&)url
 {
     // This handle must be acquired before creating the new tab.
     auto* current_tab = (Tab*)[NSApp keyWindow];
 
-    auto* controller = [[TabController alloc] init];
+    auto* controller = [[TabController alloc] init:url.value_or(m_new_tab_page_url)];
     [controller showWindow:nil];
 
     if (current_tab) {
@@ -196,7 +206,7 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification*)notification
 {
-    [self create_new_tab];
+    [self create_new_tab:m_initial_url];
 }
 
 - (void)applicationWillTerminate:(NSNotification*)notification

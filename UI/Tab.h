@@ -6,11 +6,15 @@
 
 #pragma once
 
+#include <AK/URL.h>
+
 #import <System/Cocoa.h>
 
 @class LadybirdWebView;
 
 @interface Tab : NSWindow
+
+- (instancetype)init:(URL)url;
 
 @property (nonatomic, strong) LadybirdWebView* web_view;
 

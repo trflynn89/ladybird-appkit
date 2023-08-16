@@ -6,6 +6,9 @@
 
 #pragma once
 
+#include <AK/Optional.h>
+#include <AK/URL.h>
+
 #import <System/Cocoa.h>
 
 @class Tab;
@@ -13,7 +16,9 @@
 
 @interface ApplicationDelegate : NSObject <NSApplicationDelegate>
 
-- (nonnull TabController*)create_new_tab;
+- (nullable instancetype)init:(Optional<URL>)initial_url;
+
+- (nonnull TabController*)create_new_tab:(Optional<URL> const&)url;
 - (void)remove_tab:(nonnull TabController*)controller;
 
 @end

@@ -4,14 +4,9 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-#include <AK/StringView.h>
-#include <AK/URL.h>
-#include <BrowserSettings/Defaults.h>
-
 #import <UI/LadybirdWebView.h>
 #import <UI/Tab.h>
 #import <UI/TabController.h>
-#import <Utilities/URL.h>
 
 #if !__has_feature(objc_arc)
 #    error "This project requires ARC"
@@ -22,7 +17,7 @@ static constexpr CGFloat const WINDOW_HEIGHT = 800;
 
 @implementation Tab
 
-- (instancetype)init
+- (instancetype)init:(URL)url
 {
     auto screen_rect = [[NSScreen mainScreen] frame];
     auto position_x = (NSWidth(screen_rect) - WINDOW_WIDTH) / 2;
@@ -60,8 +55,7 @@ static constexpr CGFloat const WINDOW_HEIGHT = 800;
 
         [self setContentView:scroll_view];
 
-        auto new_tab_url = rebase_url_on_serenity_resource_root(Browser::default_new_tab_url);
-        [self.web_view load:new_tab_url];
+        [self.web_view load:url];
     }
 
     return self;
