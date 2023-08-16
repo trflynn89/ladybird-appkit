@@ -74,16 +74,24 @@
 
 - (void)update_viewport_rect:(LadybirdWebViewBridge::ForResize)for_resize
 {
-    auto document_rect = [self frame];
+    auto content_rect = [self frame];
+    auto document_rect = [[self documentView] frame];
+    auto device_pixel_ratio = m_web_view_bridge->device_pixel_ratio();
+
+    auto position = [&](auto content_size, auto document_size, auto scroll) {
+        return max(0, (document_size - content_size) * device_pixel_ratio * scroll);
+    };
 
     auto horizontal_scroll = [[[self scroll_view] horizontalScroller] floatValue];
-    document_rect.origin.x = horizontal_scroll * document_rect.size.width;
-
     auto vertical_scroll = [[[self scroll_view] verticalScroller] floatValue];
-    document_rect.origin.y = vertical_scroll * document_rect.size.height;
 
-    auto viewport_rect = ns_rect_to_gfx_rect(document_rect);
-    m_web_view_bridge->set_viewport_rect(viewport_rect, for_resize);
+    auto viewport_rect = NSMakeRect(
+        position(content_rect.size.width, document_rect.size.width, horizontal_scroll),
+        position(content_rect.size.height, document_rect.size.height, vertical_scroll),
+        content_rect.size.width,
+        content_rect.size.height);
+
+    m_web_view_bridge->set_viewport_rect(ns_rect_to_gfx_rect(viewport_rect), for_resize);
 }
 
 - (void)set_web_view_callbacks
