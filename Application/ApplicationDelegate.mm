@@ -134,6 +134,14 @@
     auto* menu = [[NSMenuItem alloc] init];
     auto* submenu = [[NSMenu alloc] initWithTitle:@"Edit"];
 
+    [submenu addItem:[[NSMenuItem alloc] initWithTitle:@"Undo"
+                                                action:@selector(undo:)
+                                         keyEquivalent:@"z"]];
+    [submenu addItem:[[NSMenuItem alloc] initWithTitle:@"Redo"
+                                                action:@selector(redo:)
+                                         keyEquivalent:@"y"]];
+    [submenu addItem:[NSMenuItem separatorItem]];
+
     [submenu addItem:[[NSMenuItem alloc] initWithTitle:@"Cut"
                                                 action:@selector(cut:)
                                          keyEquivalent:@"x"]];
@@ -143,6 +151,8 @@
     [submenu addItem:[[NSMenuItem alloc] initWithTitle:@"Paste"
                                                 action:@selector(paste:)
                                          keyEquivalent:@"v"]];
+    [submenu addItem:[NSMenuItem separatorItem]];
+
     [submenu addItem:[[NSMenuItem alloc] initWithTitle:@"Select all"
                                                 action:@selector(selectAll:)
                                          keyEquivalent:@"a"]];
