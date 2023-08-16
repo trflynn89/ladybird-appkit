@@ -101,11 +101,6 @@
         [[self tab_controller] set_location_toolbar_text:ns_url];
     };
 
-    m_web_view_bridge->on_load_finish = [self](auto const& url) {
-        auto* ns_url = string_to_ns_string(url.serialize());
-        [[self tab_controller] set_location_toolbar_text:ns_url];
-    };
-
     m_web_view_bridge->on_title_change = [self](auto const& title) {
         auto* ns_title = string_to_ns_string(title);
         [[self tab] setTitle:ns_title];
