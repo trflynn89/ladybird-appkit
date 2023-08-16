@@ -62,14 +62,36 @@
 
 - (void)handle_resize
 {
-    auto viewport_rect = ns_rect_to_gfx_rect([self frame]);
-    m_web_view_bridge->set_viewport_rect(viewport_rect);
+    [self update_viewport_rect:LadybirdWebViewBridge::ForResize::Yes];
+}
+
+- (void)handle_scroll
+{
+    [self update_viewport_rect:LadybirdWebViewBridge::ForResize::No];
 }
 
 #pragma mark - Private methods
 
+- (void)update_viewport_rect:(LadybirdWebViewBridge::ForResize)for_resize
+{
+    auto document_rect = [self frame];
+
+    auto horizontal_scroll = [[[self scroll_view] horizontalScroller] floatValue];
+    document_rect.origin.x = horizontal_scroll * document_rect.size.width;
+
+    auto vertical_scroll = [[[self scroll_view] verticalScroller] floatValue];
+    document_rect.origin.y = vertical_scroll * document_rect.size.height;
+
+    auto viewport_rect = ns_rect_to_gfx_rect(document_rect);
+    m_web_view_bridge->set_viewport_rect(viewport_rect, for_resize);
+}
+
 - (void)set_web_view_callbacks
 {
+    m_web_view_bridge->on_layout = [self](auto content_size) {
+        [[self documentView] setFrameSize:gfx_size_to_ns_size(content_size)];
+    };
+
     m_web_view_bridge->on_ready_to_paint = [self]() {
         [self setNeedsDisplay:YES];
     };
@@ -100,6 +122,11 @@
     return (TabController*)[[self tab] windowController];
 }
 
+- (NSScrollView*)scroll_view
+{
+    return (NSScrollView*)[self superview];
+}
+
 #pragma mark - NSView
 
 - (void)drawRect:(NSRect)rect
@@ -120,10 +147,13 @@
     auto context = [[NSGraphicsContext currentContext] CGContext];
     CGContextSaveGState(context);
 
-    CGContextScaleCTM(context, m_web_view_bridge->inverse_device_pixel_ratio(), m_web_view_bridge->inverse_device_pixel_ratio());
+    auto device_pixel_ratio = m_web_view_bridge->device_pixel_ratio();
+    auto inverse_device_pixel_ratio = m_web_view_bridge->inverse_device_pixel_ratio();
+
+    CGContextScaleCTM(context, inverse_device_pixel_ratio, inverse_device_pixel_ratio);
 
     auto provider = CGDataProviderCreateWithData(nil, bitmap.scanline_u8(0), bitmap.size_in_bytes(), nil);
-    auto image_rect = CGRectMake(0, 0, bitmap_size.width(), bitmap_size.height());
+    auto image_rect = CGRectMake(rect.origin.x * device_pixel_ratio, rect.origin.y * device_pixel_ratio, bitmap_size.width(), bitmap_size.height());
 
     // Ideally, this would be NSBitmapImageRep, but the equivalent factory initWithBitmapDataPlanes: does
     // not seem to actually respect endianness. We need NSBitmapFormatThirtyTwoBitLittleEndian, but the
@@ -148,6 +178,13 @@
     CGImageRelease(bitmap_image);
 
     [super drawRect:rect];
+}
+
+- (BOOL)isFlipped
+{
+    // The origin of a NSScrollView is the lower-left corner, with the y-axis extending upwards. Instead,
+    // we want the origin to be the top-left corner, with the y-axis extending downward.
+    return YES;
 }
 
 @end

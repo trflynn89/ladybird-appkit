@@ -18,13 +18,20 @@ public:
     float device_pixel_ratio() const { return m_device_pixel_ratio; }
     float inverse_device_pixel_ratio() const { return m_inverse_device_pixel_ratio; }
 
-    void set_viewport_rect(Gfx::IntRect);
+    enum class ForResize {
+        Yes,
+        No,
+    };
+    void set_viewport_rect(Gfx::IntRect, ForResize = ForResize::No);
+    virtual Gfx::IntRect viewport_rect() const override;
 
     struct Paintable {
         Gfx::Bitmap& bitmap;
         Gfx::IntSize bitmap_size;
     };
     Optional<Paintable> paintable();
+
+    Function<void(Gfx::IntSize)> on_layout;
     Function<void()> on_ready_to_paint;
 
 private:
@@ -50,7 +57,6 @@ private:
     virtual void notify_server_did_finish_handling_input_event(bool event_was_accepted) override;
 
     virtual void update_zoom() override;
-    virtual Gfx::IntRect viewport_rect() const override;
     virtual Gfx::IntPoint to_content_position(Gfx::IntPoint widget_position) const override;
     virtual Gfx::IntPoint to_widget_position(Gfx::IntPoint content_position) const override;
 

@@ -35,14 +35,17 @@ LadybirdWebViewBridge::LadybirdWebViewBridge(Vector<Gfx::IntRect> screen_rects, 
 
 LadybirdWebViewBridge::~LadybirdWebViewBridge() = default;
 
-void LadybirdWebViewBridge::set_viewport_rect(Gfx::IntRect viewport_rect)
+void LadybirdWebViewBridge::set_viewport_rect(Gfx::IntRect viewport_rect, ForResize for_resize)
 {
     viewport_rect.set_size(scale_size_for_device(viewport_rect.size(), m_device_pixel_ratio));
     m_viewport_rect = viewport_rect;
 
     client().async_set_viewport_rect(m_viewport_rect);
-    handle_resize();
     request_repaint();
+
+    if (for_resize == ForResize::Yes) {
+        handle_resize();
+    }
 }
 
 Optional<LadybirdWebViewBridge::Paintable> LadybirdWebViewBridge::paintable()
@@ -63,8 +66,12 @@ Optional<LadybirdWebViewBridge::Paintable> LadybirdWebViewBridge::paintable()
     return Paintable { *bitmap, bitmap_size };
 }
 
-void LadybirdWebViewBridge::notify_server_did_layout(Badge<WebView::WebContentClient>, Gfx::IntSize)
+void LadybirdWebViewBridge::notify_server_did_layout(Badge<WebView::WebContentClient>, Gfx::IntSize content_size)
 {
+    if (on_layout) {
+        content_size = scale_size_for_device(content_size, m_inverse_device_pixel_ratio);
+        on_layout(content_size);
+    }
 }
 
 void LadybirdWebViewBridge::notify_server_did_paint(Badge<WebView::WebContentClient>, i32 bitmap_id, Gfx::IntSize size)
