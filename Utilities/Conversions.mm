@@ -27,3 +27,27 @@ Gfx::IntRect ns_rect_to_gfx_rect(NSRect rect)
         static_cast<int>(rect.size.height),
     };
 }
+
+NSRect gfx_rect_to_ns_rect(Gfx::IntRect rect)
+{
+    return NSMakeRect(
+        static_cast<CGFloat>(rect.x()),
+        static_cast<CGFloat>(rect.y()),
+        static_cast<CGFloat>(rect.width()),
+        static_cast<CGFloat>(rect.height()));
+}
+
+Gfx::IntSize ns_size_to_gfx_size(NSSize size)
+{
+    return {
+        static_cast<int>(size.width),
+        static_cast<int>(size.height),
+    };
+}
+
+NSSize gfx_size_to_ns_size(Gfx::IntSize size)
+{
+    return NSMakeSize(
+        static_cast<CGFloat>(size.width()),
+        static_cast<CGFloat>(size.height()));
+}
