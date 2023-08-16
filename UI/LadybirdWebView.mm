@@ -125,7 +125,10 @@
     auto provider = CGDataProviderCreateWithData(nil, bitmap.scanline_u8(0), bitmap.size_in_bytes(), nil);
     auto image_rect = CGRectMake(0, 0, bitmap_size.width(), bitmap_size.height());
 
-    auto image = CGImageCreate(
+    // Ideally, this would be NSBitmapImageRep, but the equivalent factory initWithBitmapDataPlanes: does
+    // not seem to actually respect endianness. We need NSBitmapFormatThirtyTwoBitLittleEndian, but the
+    // resulting image is always big endian. CGImageCreate actually does respect the endianness.
+    auto bitmap_image = CGImageCreate(
         bitmap_size.width(),
         bitmap_size.height(),
         BITS_PER_COMPONENT,
@@ -138,10 +141,11 @@
         NO,
         kCGRenderingIntentDefault);
 
-    CGContextDrawImage(context, image_rect, image);
-    CGImageRelease(image);
+    auto* image = [[NSImage alloc] initWithCGImage:bitmap_image size:NSZeroSize];
+    [image drawInRect:image_rect];
 
     CGContextRestoreGState(context);
+    CGImageRelease(bitmap_image);
 
     [super drawRect:rect];
 }
