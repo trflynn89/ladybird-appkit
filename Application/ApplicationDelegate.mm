@@ -70,13 +70,13 @@
 
 #pragma mark - Private methods
 
-- (void)close_current_tab:(id)selector
+- (void)close_current_tab:(id)sender
 {
     auto* current_tab = (Tab*)[NSApp keyWindow];
     [current_tab close];
 }
 
-- (void)open_location:(id)selector
+- (void)open_location:(id)sender
 {
     auto* current_tab = (Tab*)[NSApp keyWindow];
     auto* controller = (TabController*)[current_tab windowController];
@@ -113,15 +113,15 @@
     auto* menu = [[NSMenuItem alloc] init];
     auto* submenu = [[NSMenu alloc] initWithTitle:@"File"];
 
-    [submenu addItem:[[NSMenuItem alloc] initWithTitle:[NSString stringWithFormat:@"New Tab"]
+    [submenu addItem:[[NSMenuItem alloc] initWithTitle:@"New Tab"
                                                 action:@selector(create_new_tab:)
                                          keyEquivalent:@"t"]];
-    [submenu addItem:[[NSMenuItem alloc] initWithTitle:[NSString stringWithFormat:@"Close Tab"]
+    [submenu addItem:[[NSMenuItem alloc] initWithTitle:@"Close Tab"
                                                 action:@selector(close_current_tab:)
                                          keyEquivalent:@"w"]];
     [submenu addItem:[NSMenuItem separatorItem]];
 
-    [submenu addItem:[[NSMenuItem alloc] initWithTitle:[NSString stringWithFormat:@"Open Location"]
+    [submenu addItem:[[NSMenuItem alloc] initWithTitle:@"Open Location"
                                                 action:@selector(open_location:)
                                          keyEquivalent:@"l"]];
 
@@ -133,6 +133,19 @@
 {
     auto* menu = [[NSMenuItem alloc] init];
     auto* submenu = [[NSMenu alloc] initWithTitle:@"Edit"];
+
+    [submenu addItem:[[NSMenuItem alloc] initWithTitle:@"Cut"
+                                                action:@selector(cut:)
+                                         keyEquivalent:@"x"]];
+    [submenu addItem:[[NSMenuItem alloc] initWithTitle:@"Copy"
+                                                action:@selector(copy:)
+                                         keyEquivalent:@"c"]];
+    [submenu addItem:[[NSMenuItem alloc] initWithTitle:@"Paste"
+                                                action:@selector(paste:)
+                                         keyEquivalent:@"v"]];
+    [submenu addItem:[[NSMenuItem alloc] initWithTitle:@"Select all"
+                                                action:@selector(selectAll:)
+                                         keyEquivalent:@"a"]];
 
     [menu setSubmenu:submenu];
     return menu;
