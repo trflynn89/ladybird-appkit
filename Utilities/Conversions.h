@@ -9,6 +9,7 @@
 #include <AK/String.h>
 #include <AK/StringView.h>
 #include <LibGfx/Rect.h>
+#include <LibGfx/Size.h>
 
 #import <System/Cocoa.h>
 
@@ -16,3 +17,7 @@ String ns_string_to_string(NSString*);
 NSString* string_to_ns_string(StringView);
 
 Gfx::IntRect ns_rect_to_gfx_rect(NSRect);
+NSRect gfx_rect_to_ns_rect(Gfx::IntRect);
+
+Gfx::IntSize ns_size_to_gfx_size(NSSize);
+NSSize gfx_size_to_ns_size(Gfx::IntSize);
