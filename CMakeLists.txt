@@ -46,6 +46,7 @@ target_link_libraries(Ladybird PRIVATE
     LibGUI
     LibIPC
     LibJS
+    LibMain
     LibProtocol
     LibSQL
     LibWeb

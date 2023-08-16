@@ -7,6 +7,7 @@
 #include <Ladybird/Utilities.h>
 #include <LibCore/EventLoop.h>
 #include <LibGfx/Font/FontDatabase.h>
+#include <LibMain/Main.h>
 
 #import <Application/ApplicationDelegate.h>
 #import <Application/EventLoopImplementation.h>
@@ -17,7 +18,7 @@
 #    error "This project requires ARC"
 #endif
 
-int main()
+ErrorOr<int> serenity_main(Main::Arguments)
 {
     [NSApplication sharedApplication];
 
