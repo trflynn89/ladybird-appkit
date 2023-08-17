@@ -53,25 +53,21 @@ void WebViewBridge::set_viewport_rect(Gfx::IntRect viewport_rect, ForResize for_
 
 void WebViewBridge::mouse_down_event(Gfx::IntPoint position, GUI::MouseButton button, KeyModifier modifiers)
 {
-    position = scale_for_device(position, m_device_pixel_ratio);
     client().async_mouse_down(to_content_position(position), to_underlying(button), to_underlying(button), modifiers);
 }
 
 void WebViewBridge::mouse_up_event(Gfx::IntPoint position, GUI::MouseButton button, KeyModifier modifiers)
 {
-    position = scale_for_device(position, m_device_pixel_ratio);
     client().async_mouse_up(to_content_position(position), to_underlying(button), to_underlying(button), modifiers);
 }
 
 void WebViewBridge::mouse_move_event(Gfx::IntPoint position, GUI::MouseButton button, KeyModifier modifiers)
 {
-    position = scale_for_device(position, m_device_pixel_ratio);
     client().async_mouse_move(to_content_position(position), 0, to_underlying(button), modifiers);
 }
 
 void WebViewBridge::mouse_double_click_event(Gfx::IntPoint position, GUI::MouseButton button, KeyModifier modifiers)
 {
-    position = scale_for_device(position, m_device_pixel_ratio);
     client().async_doubleclick(to_content_position(position), button, to_underlying(button), modifiers);
 }
 
@@ -214,12 +210,12 @@ Gfx::IntRect WebViewBridge::viewport_rect() const
 
 Gfx::IntPoint WebViewBridge::to_content_position(Gfx::IntPoint widget_position) const
 {
-    return widget_position;
+    return scale_for_device(widget_position, m_device_pixel_ratio);
 }
 
 Gfx::IntPoint WebViewBridge::to_widget_position(Gfx::IntPoint content_position) const
 {
-    return content_position;
+    return scale_for_device(content_position, m_inverse_device_pixel_ratio);
 }
 
 void WebViewBridge::create_client(WebView::EnableCallgrindProfiling enable_callgrind_profiling)
