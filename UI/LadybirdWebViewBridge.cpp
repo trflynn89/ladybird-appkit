@@ -73,6 +73,16 @@ void LadybirdWebViewBridge::mouse_double_click_event(Gfx::IntPoint position, GUI
     client().async_doubleclick(to_content_position(position), button, to_underlying(button), modifiers);
 }
 
+void LadybirdWebViewBridge::key_down_event(KeyCode key_code, KeyModifier modifiers, u32 code_point)
+{
+    client().async_key_down(key_code, modifiers, code_point);
+}
+
+void LadybirdWebViewBridge::key_up_event(KeyCode key_code, KeyModifier modifiers, u32 code_point)
+{
+    client().async_key_up(key_code, modifiers, code_point);
+}
+
 Optional<LadybirdWebViewBridge::Paintable> LadybirdWebViewBridge::paintable()
 {
     Gfx::Bitmap* bitmap = nullptr;
