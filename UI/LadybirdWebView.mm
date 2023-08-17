@@ -18,6 +18,11 @@
 #import <UI/TabController.h>
 #import <Utilities/Conversions.h>
 
+static constexpr NSInteger CONTEXT_MENU_PLAY_PAUSE_TAG = 1;
+static constexpr NSInteger CONTEXT_MENU_MUTE_UNMUTE_TAG = 2;
+static constexpr NSInteger CONTEXT_MENU_CONTROLS_TAG = 3;
+static constexpr NSInteger CONTEXT_MENU_LOOP_TAG = 4;
+
 @interface LadybirdWebView ()
 {
     OwnPtr<Ladybird::WebViewBridge> m_web_view_bridge;
@@ -30,6 +35,7 @@
 @property (nonatomic, strong) NSMenu* page_context_menu;
 @property (nonatomic, strong) NSMenu* link_context_menu;
 @property (nonatomic, strong) NSMenu* image_context_menu;
+@property (nonatomic, strong) NSMenu* video_context_menu;
 
 @end
 
@@ -38,6 +44,7 @@
 @synthesize page_context_menu = _page_context_menu;
 @synthesize link_context_menu = _link_context_menu;
 @synthesize image_context_menu = _image_context_menu;
+@synthesize video_context_menu = _video_context_menu;
 
 - (instancetype)init
 {
@@ -143,6 +150,41 @@
         auto* event = Ladybird::create_context_menu_mouse_event(self, position);
         [NSMenu popUpContextMenu:self.image_context_menu withEvent:event forView:self];
     };
+
+    m_web_view_bridge->on_media_context_menu_request = [self](auto position, auto const& menu) {
+        if (!menu.is_video) {
+            NSLog(@"TODO: Implement audio context menu once audio elements are supported");
+            return;
+        }
+
+        TemporaryChange change_url { m_context_menu_url, menu.media_url };
+
+        auto* play_pause_menu_item = [self.video_context_menu itemWithTag:CONTEXT_MENU_PLAY_PAUSE_TAG];
+        auto* mute_unmute_menu_item = [self.video_context_menu itemWithTag:CONTEXT_MENU_MUTE_UNMUTE_TAG];
+        auto* controls_menu_item = [self.video_context_menu itemWithTag:CONTEXT_MENU_CONTROLS_TAG];
+        auto* loop_menu_item = [self.video_context_menu itemWithTag:CONTEXT_MENU_LOOP_TAG];
+
+        if (menu.is_playing) {
+            [play_pause_menu_item setTitle:@"Pause"];
+        } else {
+            [play_pause_menu_item setTitle:@"Play"];
+        }
+
+        if (menu.is_muted) {
+            [mute_unmute_menu_item setTitle:@"Unmute"];
+        } else {
+            [mute_unmute_menu_item setTitle:@"Mute"];
+        }
+
+        auto controls_state = menu.has_user_agent_controls ? NSControlStateValueOn : NSControlStateValueOff;
+        [controls_menu_item setState:controls_state];
+
+        auto loop_state = menu.is_looping ? NSControlStateValueOn : NSControlStateValueOff;
+        [loop_menu_item setState:loop_state];
+
+        auto* event = Ladybird::create_context_menu_mouse_event(self, position);
+        [NSMenu popUpContextMenu:self.video_context_menu withEvent:event forView:self];
+    };
 }
 
 - (Tab*)tab
@@ -226,6 +268,26 @@ static void copy_text_to_clipboard(StringView text)
     [pasteBoard setData:data forType:NSPasteboardTypePNG];
 }
 
+- (void)toggleMediaPlayState:(id)sender
+{
+    m_web_view_bridge->toggle_media_play_state();
+}
+
+- (void)toggleMediaMuteState:(id)sender
+{
+    m_web_view_bridge->toggle_media_mute_state();
+}
+
+- (void)toggleMediaControlsState:(id)sender
+{
+    m_web_view_bridge->toggle_media_controls_state();
+}
+
+- (void)toggleMediaLoopState:(id)sender
+{
+    m_web_view_bridge->toggle_media_loop_state();
+}
+
 #pragma mark - Properties
 
 - (NSMenu*)page_context_menu
@@ -306,6 +368,53 @@ static void copy_text_to_clipboard(StringView text)
     }
 
     return _image_context_menu;
+}
+
+- (NSMenu*)video_context_menu
+{
+    if (!_video_context_menu) {
+        _video_context_menu = [[NSMenu alloc] initWithTitle:@"Video Context Menu"];
+
+        auto* play_pause_menu_item = [[NSMenuItem alloc] initWithTitle:@"Play"
+                                                                action:@selector(toggleMediaPlayState:)
+                                                         keyEquivalent:@""];
+        [play_pause_menu_item setTag:CONTEXT_MENU_PLAY_PAUSE_TAG];
+
+        auto* mute_unmute_menu_item = [[NSMenuItem alloc] initWithTitle:@"Mute"
+                                                                 action:@selector(toggleMediaMuteState:)
+                                                          keyEquivalent:@""];
+        [mute_unmute_menu_item setTag:CONTEXT_MENU_MUTE_UNMUTE_TAG];
+
+        auto* controls_menu_item = [[NSMenuItem alloc] initWithTitle:@"Controls"
+                                                              action:@selector(toggleMediaControlsState:)
+                                                       keyEquivalent:@""];
+        [controls_menu_item setTag:CONTEXT_MENU_CONTROLS_TAG];
+
+        auto* loop_menu_item = [[NSMenuItem alloc] initWithTitle:@"Loop"
+                                                          action:@selector(toggleMediaLoopState:)
+                                                   keyEquivalent:@""];
+        [loop_menu_item setTag:CONTEXT_MENU_LOOP_TAG];
+
+        [_video_context_menu addItem:play_pause_menu_item];
+        [_video_context_menu addItem:mute_unmute_menu_item];
+        [_video_context_menu addItem:controls_menu_item];
+        [_video_context_menu addItem:loop_menu_item];
+        [_video_context_menu addItem:[NSMenuItem separatorItem]];
+
+        [_video_context_menu addItem:[[NSMenuItem alloc] initWithTitle:@"Open Video"
+                                                                action:@selector(openLink:)
+                                                         keyEquivalent:@""]];
+        [_video_context_menu addItem:[[NSMenuItem alloc] initWithTitle:@"Open Video in New Tab"
+                                                                action:@selector(openLinkInNewTab:)
+                                                         keyEquivalent:@""]];
+        [_video_context_menu addItem:[NSMenuItem separatorItem]];
+
+        [_video_context_menu addItem:[[NSMenuItem alloc] initWithTitle:@"Copy Video URL"
+                                                                action:@selector(copyLink:)
+                                                         keyEquivalent:@""]];
+    }
+
+    return _video_context_menu;
 }
 
 #pragma mark - NSView
