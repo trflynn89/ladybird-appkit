@@ -7,6 +7,7 @@
 #include <AK/URL.h>
 #include <UI/LadybirdWebViewBridge.h>
 
+#import <UI/Event.h>
 #import <UI/LadybirdWebView.h>
 #import <UI/Tab.h>
 #import <UI/TabController.h>
@@ -178,6 +179,52 @@
     // The origin of a NSScrollView is the lower-left corner, with the y-axis extending upwards. Instead,
     // we want the origin to be the top-left corner, with the y-axis extending downward.
     return YES;
+}
+
+- (void)mouseDown:(NSEvent*)event
+{
+    auto [position, button, modifiers] = ns_event_to_mouse_event(event, self, GUI::MouseButton::Primary);
+
+    if (event.clickCount % 2 == 0) {
+        m_web_view_bridge->mouse_double_click_event(position, button, modifiers);
+    } else {
+        m_web_view_bridge->mouse_down_event(position, button, modifiers);
+    }
+}
+
+- (void)mouseUp:(NSEvent*)event
+{
+    auto [position, button, modifiers] = ns_event_to_mouse_event(event, self, GUI::MouseButton::Primary);
+    m_web_view_bridge->mouse_up_event(position, button, modifiers);
+}
+
+- (void)mouseDragged:(NSEvent*)event
+{
+    auto [position, button, modifiers] = ns_event_to_mouse_event(event, self, GUI::MouseButton::Primary);
+    m_web_view_bridge->mouse_move_event(position, button, modifiers);
+}
+
+- (void)rightMouseDown:(NSEvent*)event
+{
+    auto [position, button, modifiers] = ns_event_to_mouse_event(event, self, GUI::MouseButton::Secondary);
+
+    if (event.clickCount % 2 == 0) {
+        m_web_view_bridge->mouse_double_click_event(position, button, modifiers);
+    } else {
+        m_web_view_bridge->mouse_down_event(position, button, modifiers);
+    }
+}
+
+- (void)rightMouseUp:(NSEvent*)event
+{
+    auto [position, button, modifiers] = ns_event_to_mouse_event(event, self, GUI::MouseButton::Secondary);
+    m_web_view_bridge->mouse_up_event(position, button, modifiers);
+}
+
+- (void)rightMouseDragged:(NSEvent*)event
+{
+    auto [position, button, modifiers] = ns_event_to_mouse_event(event, self, GUI::MouseButton::Secondary);
+    m_web_view_bridge->mouse_move_event(position, button, modifiers);
 }
 
 @end

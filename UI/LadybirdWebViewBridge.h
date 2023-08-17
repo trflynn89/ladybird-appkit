@@ -7,8 +7,14 @@
 #pragma once
 
 #include <AK/Vector.h>
+#include <LibGfx/Point.h>
 #include <LibGfx/Rect.h>
+#include <LibGfx/Size.h>
 #include <LibWebView/ViewImplementation.h>
+
+// FIXME: These should not be included outside of Serenity.
+#include <Kernel/API/KeyCode.h>
+#include <LibGUI/Event.h>
 
 class LadybirdWebViewBridge final : public WebView::ViewImplementation {
 public:
@@ -23,7 +29,11 @@ public:
         No,
     };
     void set_viewport_rect(Gfx::IntRect, ForResize = ForResize::No);
-    virtual Gfx::IntRect viewport_rect() const override;
+
+    void mouse_down_event(Gfx::IntPoint, GUI::MouseButton, KeyModifier);
+    void mouse_up_event(Gfx::IntPoint, GUI::MouseButton, KeyModifier);
+    void mouse_move_event(Gfx::IntPoint, GUI::MouseButton, KeyModifier);
+    void mouse_double_click_event(Gfx::IntPoint, GUI::MouseButton, KeyModifier);
 
     struct Paintable {
         Gfx::Bitmap& bitmap;
@@ -57,6 +67,7 @@ private:
     virtual void notify_server_did_finish_handling_input_event(bool event_was_accepted) override;
 
     virtual void update_zoom() override;
+    virtual Gfx::IntRect viewport_rect() const override;
     virtual Gfx::IntPoint to_content_position(Gfx::IntPoint widget_position) const override;
     virtual Gfx::IntPoint to_widget_position(Gfx::IntPoint content_position) const override;
 
