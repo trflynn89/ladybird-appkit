@@ -7,6 +7,8 @@
 #include <AK/Optional.h>
 #include <AK/TemporaryChange.h>
 #include <AK/URL.h>
+#include <LibGfx/ImageFormats/PNGWriter.h>
+#include <LibGfx/ShareableBitmap.h>
 #include <UI/LadybirdWebViewBridge.h>
 
 #import <Application/ApplicationDelegate.h>
@@ -22,10 +24,12 @@
     Optional<NSTrackingRectTag> m_mouse_tracking_tag;
 
     URL m_context_menu_url;
+    Gfx::ShareableBitmap m_context_menu_bitmap;
 }
 
 @property (nonatomic, strong) NSMenu* page_context_menu;
 @property (nonatomic, strong) NSMenu* link_context_menu;
+@property (nonatomic, strong) NSMenu* image_context_menu;
 
 @end
 
@@ -33,6 +37,7 @@
 
 @synthesize page_context_menu = _page_context_menu;
 @synthesize link_context_menu = _link_context_menu;
+@synthesize image_context_menu = _image_context_menu;
 
 - (instancetype)init
 {
@@ -125,10 +130,18 @@
     };
 
     m_web_view_bridge->on_link_context_menu_request = [self](auto const& url, auto position) {
-        TemporaryChange change { m_context_menu_url, url };
+        TemporaryChange change_url { m_context_menu_url, url };
 
         auto* event = Ladybird::create_context_menu_mouse_event(self, position);
         [NSMenu popUpContextMenu:self.link_context_menu withEvent:event forView:self];
+    };
+
+    m_web_view_bridge->on_image_context_menu_request = [self](auto const& url, auto position, auto const& bitmap) {
+        TemporaryChange change_url { m_context_menu_url, url };
+        TemporaryChange change_bitmap { m_context_menu_bitmap, bitmap };
+
+        auto* event = Ladybird::create_context_menu_mouse_event(self, position);
+        [NSMenu popUpContextMenu:self.image_context_menu withEvent:event forView:self];
     };
 }
 
@@ -194,6 +207,25 @@ static void copy_text_to_clipboard(StringView text)
     copy_text_to_clipboard(m_context_menu_url.serialize());
 }
 
+- (void)copyImage:(id)sender
+{
+    auto* bitmap = m_context_menu_bitmap.bitmap();
+    if (bitmap == nullptr) {
+        return;
+    }
+
+    auto png = Gfx::PNGWriter::encode(*bitmap);
+    if (png.is_error()) {
+        return;
+    }
+
+    auto data = [NSData dataWithBytes:png.value().data() length:png.value().size()];
+
+    auto* pasteBoard = [NSPasteboard generalPasteboard];
+    [pasteBoard clearContents];
+    [pasteBoard setData:data forType:NSPasteboardTypePNG];
+}
+
 #pragma mark - Properties
 
 - (NSMenu*)page_context_menu
@@ -250,6 +282,30 @@ static void copy_text_to_clipboard(StringView text)
     }
 
     return _link_context_menu;
+}
+
+- (NSMenu*)image_context_menu
+{
+    if (!_image_context_menu) {
+        _image_context_menu = [[NSMenu alloc] initWithTitle:@"Image Context Menu"];
+
+        [_image_context_menu addItem:[[NSMenuItem alloc] initWithTitle:@"Open Image"
+                                                                action:@selector(openLink:)
+                                                         keyEquivalent:@""]];
+        [_image_context_menu addItem:[[NSMenuItem alloc] initWithTitle:@"Open Image in New Tab"
+                                                                action:@selector(openLinkInNewTab:)
+                                                         keyEquivalent:@""]];
+        [_image_context_menu addItem:[NSMenuItem separatorItem]];
+
+        [_image_context_menu addItem:[[NSMenuItem alloc] initWithTitle:@"Copy Image"
+                                                                action:@selector(copyImage:)
+                                                         keyEquivalent:@""]];
+        [_image_context_menu addItem:[[NSMenuItem alloc] initWithTitle:@"Copy Image URL"
+                                                                action:@selector(copyLink:)
+                                                         keyEquivalent:@""]];
+    }
+
+    return _image_context_menu;
 }
 
 #pragma mark - NSView
