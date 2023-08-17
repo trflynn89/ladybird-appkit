@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
+#include <AK/Optional.h>
 #include <AK/URL.h>
 #include <UI/LadybirdWebViewBridge.h>
 
@@ -16,6 +17,7 @@
 @interface LadybirdWebView ()
 {
     OwnPtr<LadybirdWebViewBridge> m_web_view_bridge;
+    Optional<NSTrackingRectTag> m_mouse_tracking_tag;
 }
 
 @end
@@ -179,6 +181,36 @@
     // The origin of a NSScrollView is the lower-left corner, with the y-axis extending upwards. Instead,
     // we want the origin to be the top-left corner, with the y-axis extending downward.
     return YES;
+}
+
+- (void)updateTrackingAreas
+{
+    if (m_mouse_tracking_tag.has_value()) {
+        [self removeTrackingRect:*m_mouse_tracking_tag];
+    }
+
+    m_mouse_tracking_tag = [self addTrackingRect:[self visibleRect]
+                                           owner:self
+                                        userData:nil
+                                    assumeInside:NO];
+}
+
+- (void)mouseEntered:(NSEvent*)event
+{
+    [[self window] setAcceptsMouseMovedEvents:YES];
+    [[self window] makeFirstResponder:self];
+}
+
+- (void)mouseExited:(NSEvent*)event
+{
+    [[self window] setAcceptsMouseMovedEvents:NO];
+    [[self window] resignFirstResponder];
+}
+
+- (void)mouseMoved:(NSEvent*)event
+{
+    auto [position, button, modifiers] = ns_event_to_mouse_event(event, self, GUI::MouseButton::None);
+    m_web_view_bridge->mouse_move_event(position, button, modifiers);
 }
 
 - (void)mouseDown:(NSEvent*)event
