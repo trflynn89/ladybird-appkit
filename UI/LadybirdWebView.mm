@@ -5,9 +5,11 @@
  */
 
 #include <AK/Optional.h>
+#include <AK/TemporaryChange.h>
 #include <AK/URL.h>
 #include <UI/LadybirdWebViewBridge.h>
 
+#import <Application/ApplicationDelegate.h>
 #import <UI/Event.h>
 #import <UI/LadybirdWebView.h>
 #import <UI/Tab.h>
@@ -18,15 +20,19 @@
 {
     OwnPtr<Ladybird::WebViewBridge> m_web_view_bridge;
     Optional<NSTrackingRectTag> m_mouse_tracking_tag;
+
+    URL m_context_menu_url;
 }
 
 @property (nonatomic, strong) NSMenu* page_context_menu;
+@property (nonatomic, strong) NSMenu* link_context_menu;
 
 @end
 
 @implementation LadybirdWebView
 
 @synthesize page_context_menu = _page_context_menu;
+@synthesize link_context_menu = _link_context_menu;
 
 - (instancetype)init
 {
@@ -117,6 +123,13 @@
         auto* event = Ladybird::create_context_menu_mouse_event(self, position);
         [NSMenu popUpContextMenu:self.page_context_menu withEvent:event forView:self];
     };
+
+    m_web_view_bridge->on_link_context_menu_request = [self](auto const& url, auto position) {
+        TemporaryChange change { m_context_menu_url, url };
+
+        auto* event = Ladybird::create_context_menu_mouse_event(self, position);
+        [NSMenu popUpContextMenu:self.link_context_menu withEvent:event forView:self];
+    };
 }
 
 - (Tab*)tab
@@ -134,13 +147,18 @@
     return (NSScrollView*)[self superview];
 }
 
-- (void)copy:(id)sender
+static void copy_text_to_clipboard(StringView text)
 {
-    auto* text = Ladybird::string_to_ns_string(m_web_view_bridge->selected_text());
+    auto* string = Ladybird::string_to_ns_string(text);
 
     auto* pasteBoard = [NSPasteboard generalPasteboard];
     [pasteBoard clearContents];
-    [pasteBoard setString:text forType:NSPasteboardTypeString];
+    [pasteBoard setString:string forType:NSPasteboardTypeString];
+}
+
+- (void)copy:(id)sender
+{
+    copy_text_to_clipboard(m_web_view_bridge->selected_text());
 }
 
 - (void)selectAll:(id)sender
@@ -158,6 +176,22 @@
 {
     auto result = m_web_view_bridge->take_screenshot(WebView::ViewImplementation::ScreenshotType::Full);
     (void)result; // FIXME: Display an error if this failed.
+}
+
+- (void)openLink:(id)sender
+{
+    [self load:m_context_menu_url];
+}
+
+- (void)openLinkInNewTab:(id)sender
+{
+    auto* delegate = (ApplicationDelegate*)[NSApp delegate];
+    [delegate createNewTab:m_context_menu_url];
+}
+
+- (void)copyLink:(id)sender
+{
+    copy_text_to_clipboard(m_context_menu_url.serialize());
 }
 
 #pragma mark - Properties
@@ -195,6 +229,27 @@
     }
 
     return _page_context_menu;
+}
+
+- (NSMenu*)link_context_menu
+{
+    if (!_link_context_menu) {
+        _link_context_menu = [[NSMenu alloc] initWithTitle:@"Link Context Menu"];
+
+        [_link_context_menu addItem:[[NSMenuItem alloc] initWithTitle:@"Open"
+                                                               action:@selector(openLink:)
+                                                        keyEquivalent:@""]];
+        [_link_context_menu addItem:[[NSMenuItem alloc] initWithTitle:@"Open in New Tab"
+                                                               action:@selector(openLinkInNewTab:)
+                                                        keyEquivalent:@""]];
+        [_link_context_menu addItem:[NSMenuItem separatorItem]];
+
+        [_link_context_menu addItem:[[NSMenuItem alloc] initWithTitle:@"Copy URL"
+                                                               action:@selector(copyLink:)
+                                                        keyEquivalent:@""]];
+    }
+
+    return _link_context_menu;
 }
 
 #pragma mark - NSView
