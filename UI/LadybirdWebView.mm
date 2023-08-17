@@ -20,9 +20,13 @@
     Optional<NSTrackingRectTag> m_mouse_tracking_tag;
 }
 
+@property (nonatomic, strong) NSMenu* page_context_menu;
+
 @end
 
 @implementation LadybirdWebView
+
+@synthesize page_context_menu = _page_context_menu;
 
 - (instancetype)init
 {
@@ -108,6 +112,11 @@
         auto* ns_title = Ladybird::string_to_ns_string(title);
         [[self tab] setTitle:ns_title];
     };
+
+    m_web_view_bridge->on_context_menu_request = [self](auto position) {
+        auto* event = Ladybird::create_context_menu_mouse_event(self, position);
+        [NSMenu popUpContextMenu:self.page_context_menu withEvent:event forView:self];
+    };
 }
 
 - (Tab*)tab
@@ -123,6 +132,69 @@
 - (NSScrollView*)scrollView
 {
     return (NSScrollView*)[self superview];
+}
+
+- (void)copy:(id)sender
+{
+    auto* text = Ladybird::string_to_ns_string(m_web_view_bridge->selected_text());
+
+    auto* pasteBoard = [NSPasteboard generalPasteboard];
+    [pasteBoard clearContents];
+    [pasteBoard setString:text forType:NSPasteboardTypeString];
+}
+
+- (void)selectAll:(id)sender
+{
+    m_web_view_bridge->select_all();
+}
+
+- (void)takeVisibleScreenshot:(id)sender
+{
+    auto result = m_web_view_bridge->take_screenshot(WebView::ViewImplementation::ScreenshotType::Visible);
+    (void)result; // FIXME: Display an error if this failed.
+}
+
+- (void)takeFullScreenshot:(id)sender
+{
+    auto result = m_web_view_bridge->take_screenshot(WebView::ViewImplementation::ScreenshotType::Full);
+    (void)result; // FIXME: Display an error if this failed.
+}
+
+#pragma mark - Properties
+
+- (NSMenu*)page_context_menu
+{
+    if (!_page_context_menu) {
+        _page_context_menu = [[NSMenu alloc] initWithTitle:@"Page Context Menu"];
+
+        [_page_context_menu addItem:[[NSMenuItem alloc] initWithTitle:@"Go Back"
+                                                               action:@selector(navigateBack:)
+                                                        keyEquivalent:@""]];
+        [_page_context_menu addItem:[[NSMenuItem alloc] initWithTitle:@"Go Forward"
+                                                               action:@selector(navigateForward:)
+                                                        keyEquivalent:@""]];
+        [_page_context_menu addItem:[[NSMenuItem alloc] initWithTitle:@"Reload"
+                                                               action:@selector(reload:)
+                                                        keyEquivalent:@""]];
+        [_page_context_menu addItem:[NSMenuItem separatorItem]];
+
+        [_page_context_menu addItem:[[NSMenuItem alloc] initWithTitle:@"Copy"
+                                                               action:@selector(copy:)
+                                                        keyEquivalent:@""]];
+        [_page_context_menu addItem:[[NSMenuItem alloc] initWithTitle:@"Select All"
+                                                               action:@selector(selectAll:)
+                                                        keyEquivalent:@""]];
+        [_page_context_menu addItem:[NSMenuItem separatorItem]];
+
+        [_page_context_menu addItem:[[NSMenuItem alloc] initWithTitle:@"Take Visible Screenshot"
+                                                               action:@selector(takeVisibleScreenshot:)
+                                                        keyEquivalent:@""]];
+        [_page_context_menu addItem:[[NSMenuItem alloc] initWithTitle:@"Take Full Screenshot"
+                                                               action:@selector(takeFullScreenshot:)
+                                                        keyEquivalent:@""]];
+    }
+
+    return _page_context_menu;
 }
 
 #pragma mark - NSView
