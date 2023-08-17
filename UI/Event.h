@@ -21,6 +21,9 @@ struct MouseEvent {
 };
 MouseEvent ns_event_to_mouse_event(NSEvent*, NSView*, GUI::MouseButton);
 
+NSEvent* create_context_menu_mouse_event(NSView*, Gfx::IntPoint);
+NSEvent* create_context_menu_mouse_event(NSView*, NSPoint);
+
 struct KeyEvent {
     KeyCode key_code { KeyCode::Key_Invalid };
     KeyModifier modifiers { KeyModifier::Mod_None };
