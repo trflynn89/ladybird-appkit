@@ -17,6 +17,7 @@
 static NSString* const TOOLBAR_IDENTIFIER = @"Toolbar";
 static NSString* const TOOLBAR_NAVIGATE_BACK_IDENTIFIER = @"ToolbarNavigateBackIdentifier";
 static NSString* const TOOLBAR_NAVIGATE_FORWARD_IDENTIFIER = @"ToolbarNavigateForwardIdentifier";
+static NSString* const TOOLBAR_RELOAD_IDENTIFIER = @"ToolbarReloadIdentifier";
 static NSString* const TOOLBAR_LOCATION_IDENTIFIER = @"ToolbarLocationIdentifier";
 static NSString* const TOOLBAR_NEW_TAB_IDENTIFIER = @"ToolbarNewTabIdentifier";
 static NSString* const TOOLBAR_TAB_OVERVIEW_IDENTIFIER = @"ToolbarTabOverviewIdentifer";
@@ -31,6 +32,7 @@ static NSString* const TOOLBAR_TAB_OVERVIEW_IDENTIFIER = @"ToolbarTabOverviewIde
 
 @property (nonatomic, strong) NSToolbarItem* navigate_back_toolbar_item;
 @property (nonatomic, strong) NSToolbarItem* navigate_forward_toolbar_item;
+@property (nonatomic, strong) NSToolbarItem* reload_toolbar_item;
 @property (nonatomic, strong) NSToolbarItem* location_toolbar_item;
 @property (nonatomic, strong) NSToolbarItem* new_tab_toolbar_item;
 @property (nonatomic, strong) NSToolbarItem* tab_overview_toolbar_item;
@@ -44,6 +46,7 @@ static NSString* const TOOLBAR_TAB_OVERVIEW_IDENTIFIER = @"ToolbarTabOverviewIde
 @synthesize toolbar_identifiers = _toolbar_identifiers;
 @synthesize navigate_back_toolbar_item = _navigate_back_toolbar_item;
 @synthesize navigate_forward_toolbar_item = _navigate_forward_toolbar_item;
+@synthesize reload_toolbar_item = _reload_toolbar_item;
 @synthesize location_toolbar_item = _location_toolbar_item;
 @synthesize new_tab_toolbar_item = _new_tab_toolbar_item;
 @synthesize tab_overview_toolbar_item = _tab_overview_toolbar_item;
@@ -148,6 +151,19 @@ static NSString* const TOOLBAR_TAB_OVERVIEW_IDENTIFIER = @"ToolbarTabOverviewIde
     return _navigate_forward_toolbar_item;
 }
 
+- (NSToolbarItem*)reload_toolbar_item
+{
+    if (!_reload_toolbar_item) {
+        auto* button = [self create_button:NSImageNameRefreshTemplate
+                               with_action:@selector(reload:)];
+
+        _reload_toolbar_item = [[NSToolbarItem alloc] initWithItemIdentifier:TOOLBAR_RELOAD_IDENTIFIER];
+        [_reload_toolbar_item setView:button];
+    }
+
+    return _reload_toolbar_item;
+}
+
 - (NSToolbarItem*)location_toolbar_item
 {
     if (!_location_toolbar_item) {
@@ -195,6 +211,7 @@ static NSString* const TOOLBAR_TAB_OVERVIEW_IDENTIFIER = @"ToolbarTabOverviewIde
             TOOLBAR_NAVIGATE_BACK_IDENTIFIER,
             TOOLBAR_NAVIGATE_FORWARD_IDENTIFIER,
             NSToolbarFlexibleSpaceItemIdentifier,
+            TOOLBAR_RELOAD_IDENTIFIER,
             TOOLBAR_LOCATION_IDENTIFIER,
             NSToolbarFlexibleSpaceItemIdentifier,
             TOOLBAR_NEW_TAB_IDENTIFIER,
@@ -252,6 +269,9 @@ static NSString* const TOOLBAR_TAB_OVERVIEW_IDENTIFIER = @"ToolbarTabOverviewIde
     }
     if ([identifier isEqual:TOOLBAR_NAVIGATE_FORWARD_IDENTIFIER]) {
         return self.navigate_forward_toolbar_item;
+    }
+    if ([identifier isEqual:TOOLBAR_RELOAD_IDENTIFIER]) {
+        return self.reload_toolbar_item;
     }
     if ([identifier isEqual:TOOLBAR_LOCATION_IDENTIFIER]) {
         return self.location_toolbar_item;
