@@ -18,7 +18,7 @@
 
 - (nullable instancetype)init:(Optional<URL>)initial_url;
 
-- (nonnull TabController*)create_new_tab:(Optional<URL> const&)url;
-- (void)remove_tab:(nonnull TabController*)controller;
+- (nonnull TabController*)createNewTab:(Optional<URL> const&)url;
+- (void)removeTab:(nonnull TabController*)controller;
 
 @end

@@ -40,7 +40,7 @@
         auto device_pixel_ratio = [[NSScreen mainScreen] backingScaleFactor];
 
         m_web_view_bridge = MUST(Ladybird::WebViewBridge::create(move(screen_rects), device_pixel_ratio));
-        [self set_web_view_callbacks];
+        [self setWebViewCallbacks];
     }
 
     return self;
@@ -53,19 +53,19 @@
     m_web_view_bridge->load(url);
 }
 
-- (void)handle_resize
+- (void)handleResize
 {
-    [self update_viewport_rect:Ladybird::WebViewBridge::ForResize::Yes];
+    [self updateViewportRect:Ladybird::WebViewBridge::ForResize::Yes];
 }
 
-- (void)handle_scroll
+- (void)handleScroll
 {
-    [self update_viewport_rect:Ladybird::WebViewBridge::ForResize::No];
+    [self updateViewportRect:Ladybird::WebViewBridge::ForResize::No];
 }
 
 #pragma mark - Private methods
 
-- (void)update_viewport_rect:(Ladybird::WebViewBridge::ForResize)for_resize
+- (void)updateViewportRect:(Ladybird::WebViewBridge::ForResize)for_resize
 {
     auto content_rect = [self frame];
     auto document_rect = [[self documentView] frame];
@@ -75,8 +75,8 @@
         return max(0, (document_size - content_size) * device_pixel_ratio * scroll);
     };
 
-    auto horizontal_scroll = [[[self scroll_view] horizontalScroller] floatValue];
-    auto vertical_scroll = [[[self scroll_view] verticalScroller] floatValue];
+    auto horizontal_scroll = [[[self scrollView] horizontalScroller] floatValue];
+    auto vertical_scroll = [[[self scrollView] verticalScroller] floatValue];
 
     auto ns_viewport_rect = NSMakeRect(
         position(content_rect.size.width, document_rect.size.width, horizontal_scroll),
@@ -88,7 +88,7 @@
     m_web_view_bridge->set_viewport_rect(viewport_rect, for_resize);
 }
 
-- (void)set_web_view_callbacks
+- (void)setWebViewCallbacks
 {
     m_web_view_bridge->on_layout = [self](auto content_size) {
         auto ns_content_size = Ladybird::gfx_size_to_ns_size(content_size);
@@ -101,7 +101,7 @@
 
     m_web_view_bridge->on_load_start = [self](auto const& url, bool) {
         auto* ns_url = Ladybird::string_to_ns_string(url.serialize());
-        [[self tab_controller] set_location_toolbar_text:ns_url];
+        [[self tabController] setLocationToolbarText:ns_url];
     };
 
     m_web_view_bridge->on_title_change = [self](auto const& title) {
@@ -115,12 +115,12 @@
     return (Tab*)[self window];
 }
 
-- (TabController*)tab_controller
+- (TabController*)tabController
 {
     return (TabController*)[[self tab] windowController];
 }
 
-- (NSScrollView*)scroll_view
+- (NSScrollView*)scrollView
 {
     return (NSScrollView*)[self superview];
 }

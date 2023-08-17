@@ -65,12 +65,12 @@ static NSString* const TOOLBAR_TAB_OVERVIEW_IDENTIFIER = @"ToolbarTabOverviewIde
 
 #pragma mark - Public methods
 
-- (void)focus_location_toolbar_item
+- (void)focusLocationToolbarItem
 {
     [self.window makeFirstResponder:self.location_toolbar_item.view];
 }
 
-- (void)set_location_toolbar_text:(NSString*)location
+- (void)setLocationToolbarText:(NSString*)location
 {
     auto* view = (NSSearchField*)[self.location_toolbar_item view];
     [view setStringValue:location];
@@ -83,20 +83,20 @@ static NSString* const TOOLBAR_TAB_OVERVIEW_IDENTIFIER = @"ToolbarTabOverviewIde
     return (Tab*)[self window];
 }
 
-- (void)navigate_back:(id)sender
+- (void)navigateBack:(id)sender
 {
-    NSLog(@"TODO: Implement navigate_back");
+    NSLog(@"TODO: Implement navigateBack");
 }
 
-- (void)navigate_forward:(id)sender
+- (void)navigateForward:(id)sender
 {
-    NSLog(@"TODO: Implement navigate_forward");
+    NSLog(@"TODO: Implement navigateForward");
 }
 
-- (void)create_new_tab:(id)sender
+- (void)createNewTab:(id)sender
 {
     auto* delegate = (ApplicationDelegate*)[NSApp delegate];
-    [delegate create_new_tab:OptionalNone {}];
+    [delegate createNewTab:OptionalNone {}];
 }
 
 - (void)show_tab_overview:(id)sender
@@ -121,7 +121,7 @@ static NSString* const TOOLBAR_TAB_OVERVIEW_IDENTIFIER = @"ToolbarTabOverviewIde
 {
     if (!_navigate_back_toolbar_item) {
         auto* button = [self create_button:NSImageNameGoBackTemplate
-                               with_action:@selector(navigate_back:)];
+                               with_action:@selector(navigateBack:)];
 
         _navigate_back_toolbar_item = [[NSToolbarItem alloc] initWithItemIdentifier:TOOLBAR_NAVIGATE_BACK_IDENTIFIER];
         [_navigate_back_toolbar_item setView:button];
@@ -134,7 +134,7 @@ static NSString* const TOOLBAR_TAB_OVERVIEW_IDENTIFIER = @"ToolbarTabOverviewIde
 {
     if (!_navigate_forward_toolbar_item) {
         auto* button = [self create_button:NSImageNameGoForwardTemplate
-                               with_action:@selector(navigate_forward:)];
+                               with_action:@selector(navigateForward:)];
 
         _navigate_forward_toolbar_item = [[NSToolbarItem alloc] initWithItemIdentifier:TOOLBAR_NAVIGATE_FORWARD_IDENTIFIER];
         [_navigate_forward_toolbar_item setView:button];
@@ -161,7 +161,7 @@ static NSString* const TOOLBAR_TAB_OVERVIEW_IDENTIFIER = @"ToolbarTabOverviewIde
 {
     if (!_new_tab_toolbar_item) {
         auto* button = [self create_button:NSImageNameAddTemplate
-                               with_action:@selector(create_new_tab:)];
+                               with_action:@selector(createNewTab:)];
 
         _new_tab_toolbar_item = [[NSToolbarItem alloc] initWithItemIdentifier:TOOLBAR_NEW_TAB_IDENTIFIER];
         [_new_tab_toolbar_item setView:button];
@@ -212,7 +212,7 @@ static NSString* const TOOLBAR_TAB_OVERVIEW_IDENTIFIER = @"ToolbarTabOverviewIde
 
     [self.window makeKeyAndOrderFront:sender];
 
-    [self focus_location_toolbar_item];
+    [self focusLocationToolbarItem];
 }
 
 #pragma mark - NSWindowDelegate
@@ -220,7 +220,7 @@ static NSString* const TOOLBAR_TAB_OVERVIEW_IDENTIFIER = @"ToolbarTabOverviewIde
 - (void)windowWillClose:(NSNotification*)notification
 {
     auto* delegate = (ApplicationDelegate*)[NSApp delegate];
-    [delegate remove_tab:self];
+    [delegate removeTab:self];
 }
 
 - (void)windowDidResize:(NSNotification*)notification
@@ -233,7 +233,7 @@ static NSString* const TOOLBAR_TAB_OVERVIEW_IDENTIFIER = @"ToolbarTabOverviewIde
     self.location_toolbar_item_width = [[[self.location_toolbar_item view] widthAnchor] constraintEqualToConstant:width];
     self.location_toolbar_item_width.active = YES;
 
-    [[self tab].web_view handle_resize];
+    [[self tab].web_view handleResize];
 }
 
 #pragma mark - NSToolbarDelegate

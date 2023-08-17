@@ -14,7 +14,7 @@
 
 - (void)load:(URL const&)url;
 
-- (void)handle_resize;
-- (void)handle_scroll;
+- (void)handleResize;
+- (void)handleScroll;
 
 @end

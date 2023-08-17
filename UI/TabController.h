@@ -14,7 +14,7 @@
 
 - (instancetype)init:(URL)url;
 
-- (void)focus_location_toolbar_item;
-- (void)set_location_toolbar_text:(NSString*)location;
+- (void)focusLocationToolbarItem;
+- (void)setLocationToolbarText:(NSString*)location;
 
 @end

@@ -23,12 +23,12 @@
 
 @property (nonatomic, strong) NSMutableArray<TabController*>* managed_tabs;
 
-- (NSMenuItem*)create_application_menu;
-- (NSMenuItem*)create_file_menu;
-- (NSMenuItem*)create_edit_menu;
-- (NSMenuItem*)create_view_menu;
-- (NSMenuItem*)create_windows_menu;
-- (NSMenuItem*)create_help_menu;
+- (NSMenuItem*)createApplicationMenu;
+- (NSMenuItem*)createFileMenu;
+- (NSMenuItem*)createEditMenu;
+- (NSMenuItem*)createViewMenu;
+- (NSMenuItem*)createWindowsMenu;
+- (NSMenuItem*)createHelpMenu;
 
 @end
 
@@ -39,12 +39,12 @@
     if (self = [super init]) {
         [NSApp setMainMenu:[[NSMenu alloc] init]];
 
-        [[NSApp mainMenu] addItem:[self create_application_menu]];
-        [[NSApp mainMenu] addItem:[self create_file_menu]];
-        [[NSApp mainMenu] addItem:[self create_edit_menu]];
-        [[NSApp mainMenu] addItem:[self create_view_menu]];
-        [[NSApp mainMenu] addItem:[self create_windows_menu]];
-        [[NSApp mainMenu] addItem:[self create_help_menu]];
+        [[NSApp mainMenu] addItem:[self createApplicationMenu]];
+        [[NSApp mainMenu] addItem:[self createFileMenu]];
+        [[NSApp mainMenu] addItem:[self createEditMenu]];
+        [[NSApp mainMenu] addItem:[self createViewMenu]];
+        [[NSApp mainMenu] addItem:[self createWindowsMenu]];
+        [[NSApp mainMenu] addItem:[self createHelpMenu]];
 
         self.managed_tabs = [[NSMutableArray alloc] init];
 
@@ -57,7 +57,7 @@
 
 #pragma mark - Public methods
 
-- (TabController*)create_new_tab:(Optional<URL> const&)url
+- (TabController*)createNewTab:(Optional<URL> const&)url
 {
     // This handle must be acquired before creating the new tab.
     auto* current_tab = (Tab*)[NSApp keyWindow];
@@ -73,27 +73,27 @@
     return controller;
 }
 
-- (void)remove_tab:(TabController*)controller
+- (void)removeTab:(TabController*)controller
 {
     [self.managed_tabs removeObject:controller];
 }
 
 #pragma mark - Private methods
 
-- (void)close_current_tab:(id)sender
+- (void)closeCurrentTab:(id)sender
 {
     auto* current_tab = (Tab*)[NSApp keyWindow];
     [current_tab close];
 }
 
-- (void)open_location:(id)sender
+- (void)openLocation:(id)sender
 {
     auto* current_tab = (Tab*)[NSApp keyWindow];
     auto* controller = (TabController*)[current_tab windowController];
-    [controller focus_location_toolbar_item];
+    [controller focusLocationToolbarItem];
 }
 
-- (NSMenuItem*)create_application_menu
+- (NSMenuItem*)createApplicationMenu
 {
     auto* menu = [[NSMenuItem alloc] init];
 
@@ -118,28 +118,28 @@
     return menu;
 }
 
-- (NSMenuItem*)create_file_menu
+- (NSMenuItem*)createFileMenu
 {
     auto* menu = [[NSMenuItem alloc] init];
     auto* submenu = [[NSMenu alloc] initWithTitle:@"File"];
 
     [submenu addItem:[[NSMenuItem alloc] initWithTitle:@"New Tab"
-                                                action:@selector(create_new_tab:)
+                                                action:@selector(createNewTab:)
                                          keyEquivalent:@"t"]];
     [submenu addItem:[[NSMenuItem alloc] initWithTitle:@"Close Tab"
-                                                action:@selector(close_current_tab:)
+                                                action:@selector(closeCurrentTab:)
                                          keyEquivalent:@"w"]];
     [submenu addItem:[NSMenuItem separatorItem]];
 
     [submenu addItem:[[NSMenuItem alloc] initWithTitle:@"Open Location"
-                                                action:@selector(open_location:)
+                                                action:@selector(openLocation:)
                                          keyEquivalent:@"l"]];
 
     [menu setSubmenu:submenu];
     return menu;
 }
 
-- (NSMenuItem*)create_edit_menu
+- (NSMenuItem*)createEditMenu
 {
     auto* menu = [[NSMenuItem alloc] init];
     auto* submenu = [[NSMenu alloc] initWithTitle:@"Edit"];
@@ -171,7 +171,7 @@
     return menu;
 }
 
-- (NSMenuItem*)create_view_menu
+- (NSMenuItem*)createViewMenu
 {
     auto* menu = [[NSMenuItem alloc] init];
     auto* submenu = [[NSMenu alloc] initWithTitle:@"View"];
@@ -180,7 +180,7 @@
     return menu;
 }
 
-- (NSMenuItem*)create_windows_menu
+- (NSMenuItem*)createWindowsMenu
 {
     auto* menu = [[NSMenuItem alloc] init];
     auto* submenu = [[NSMenu alloc] initWithTitle:@"Windows"];
@@ -191,7 +191,7 @@
     return menu;
 }
 
-- (NSMenuItem*)create_help_menu
+- (NSMenuItem*)createHelpMenu
 {
     auto* menu = [[NSMenuItem alloc] init];
     auto* submenu = [[NSMenu alloc] initWithTitle:@"Help"];
@@ -206,7 +206,7 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification*)notification
 {
-    [self create_new_tab:m_initial_url];
+    [self createNewTab:m_initial_url];
 }
 
 - (void)applicationWillTerminate:(NSNotification*)notification

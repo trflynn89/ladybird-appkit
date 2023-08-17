@@ -49,7 +49,7 @@ static constexpr CGFloat const WINDOW_HEIGHT = 800;
 
         [[NSNotificationCenter defaultCenter]
             addObserver:self
-               selector:@selector(on_content_scroll:)
+               selector:@selector(onContentScroll:)
                    name:NSViewBoundsDidChangeNotification
                  object:[scroll_view contentView]];
 
@@ -61,9 +61,11 @@ static constexpr CGFloat const WINDOW_HEIGHT = 800;
     return self;
 }
 
-- (void)on_content_scroll:(NSNotification*)notification
+#pragma mark - Private methods
+
+- (void)onContentScroll:(NSNotification*)notification
 {
-    [[self web_view] handle_scroll];
+    [[self web_view] handleScroll];
 }
 
 @end
