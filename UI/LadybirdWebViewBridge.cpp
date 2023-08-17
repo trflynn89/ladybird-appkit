@@ -14,9 +14,10 @@
 #include <LibWeb/Crypto/Crypto.h>
 #include <UI/LadybirdWebViewBridge.h>
 
-static Gfx::IntSize scale_size_for_device(Gfx::IntSize size, float device_pixel_ratio)
+template<typename T>
+static T scale_for_device(T size, float device_pixel_ratio)
 {
-    return size.to_type<float>().scaled_by(device_pixel_ratio).to_type<int>();
+    return size.template to_type<float>().scaled(device_pixel_ratio).template to_type<int>();
 }
 
 ErrorOr<NonnullOwnPtr<LadybirdWebViewBridge>> LadybirdWebViewBridge::create(Vector<Gfx::IntRect> screen_rects, float device_pixel_ratio)
@@ -37,7 +38,7 @@ LadybirdWebViewBridge::~LadybirdWebViewBridge() = default;
 
 void LadybirdWebViewBridge::set_viewport_rect(Gfx::IntRect viewport_rect, ForResize for_resize)
 {
-    viewport_rect.set_size(scale_size_for_device(viewport_rect.size(), m_device_pixel_ratio));
+    viewport_rect.set_size(scale_for_device(viewport_rect.size(), m_device_pixel_ratio));
     m_viewport_rect = viewport_rect;
 
     client().async_set_viewport_rect(m_viewport_rect);
@@ -46,6 +47,30 @@ void LadybirdWebViewBridge::set_viewport_rect(Gfx::IntRect viewport_rect, ForRes
     if (for_resize == ForResize::Yes) {
         handle_resize();
     }
+}
+
+void LadybirdWebViewBridge::mouse_down_event(Gfx::IntPoint position, GUI::MouseButton button, KeyModifier modifiers)
+{
+    position = scale_for_device(position, m_device_pixel_ratio);
+    client().async_mouse_down(to_content_position(position), to_underlying(button), to_underlying(button), modifiers);
+}
+
+void LadybirdWebViewBridge::mouse_up_event(Gfx::IntPoint position, GUI::MouseButton button, KeyModifier modifiers)
+{
+    position = scale_for_device(position, m_device_pixel_ratio);
+    client().async_mouse_up(to_content_position(position), to_underlying(button), to_underlying(button), modifiers);
+}
+
+void LadybirdWebViewBridge::mouse_move_event(Gfx::IntPoint position, GUI::MouseButton button, KeyModifier modifiers)
+{
+    position = scale_for_device(position, m_device_pixel_ratio);
+    client().async_mouse_move(to_content_position(position), 0, to_underlying(button), modifiers);
+}
+
+void LadybirdWebViewBridge::mouse_double_click_event(Gfx::IntPoint position, GUI::MouseButton button, KeyModifier modifiers)
+{
+    position = scale_for_device(position, m_device_pixel_ratio);
+    client().async_doubleclick(to_content_position(position), button, to_underlying(button), modifiers);
 }
 
 Optional<LadybirdWebViewBridge::Paintable> LadybirdWebViewBridge::paintable()
@@ -69,7 +94,7 @@ Optional<LadybirdWebViewBridge::Paintable> LadybirdWebViewBridge::paintable()
 void LadybirdWebViewBridge::notify_server_did_layout(Badge<WebView::WebContentClient>, Gfx::IntSize content_size)
 {
     if (on_layout) {
-        content_size = scale_size_for_device(content_size, m_inverse_device_pixel_ratio);
+        content_size = scale_for_device(content_size, m_inverse_device_pixel_ratio);
         on_layout(content_size);
     }
 }
