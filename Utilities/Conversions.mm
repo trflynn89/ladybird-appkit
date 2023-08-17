@@ -51,3 +51,18 @@ NSSize gfx_size_to_ns_size(Gfx::IntSize size)
         static_cast<CGFloat>(size.width()),
         static_cast<CGFloat>(size.height()));
 }
+
+Gfx::IntPoint ns_point_to_gfx_point(NSPoint point)
+{
+    return {
+        static_cast<int>(point.x),
+        static_cast<int>(point.y),
+    };
+}
+
+NSPoint gfx_point_to_ns_point(Gfx::IntPoint point)
+{
+    return NSMakePoint(
+        static_cast<CGFloat>(point.x()),
+        static_cast<CGFloat>(point.y()));
+}

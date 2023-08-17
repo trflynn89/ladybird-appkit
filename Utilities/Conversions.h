@@ -8,6 +8,7 @@
 
 #include <AK/String.h>
 #include <AK/StringView.h>
+#include <LibGfx/Point.h>
 #include <LibGfx/Rect.h>
 #include <LibGfx/Size.h>
 
@@ -21,3 +22,6 @@ NSRect gfx_rect_to_ns_rect(Gfx::IntRect);
 
 Gfx::IntSize ns_size_to_gfx_size(NSSize);
 NSSize gfx_size_to_ns_size(Gfx::IntSize);
+
+Gfx::IntPoint ns_point_to_gfx_point(NSPoint);
+NSPoint gfx_point_to_ns_point(Gfx::IntPoint);
