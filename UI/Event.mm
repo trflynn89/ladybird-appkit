@@ -44,6 +44,24 @@ MouseEvent ns_event_to_mouse_event(NSEvent* event, NSView* view, GUI::MouseButto
     return { ns_point_to_gfx_point(position), button, modifiers };
 }
 
+NSEvent* create_context_menu_mouse_event(NSView* view, Gfx::IntPoint position)
+{
+    return create_context_menu_mouse_event(view, gfx_point_to_ns_point(position));
+}
+
+NSEvent* create_context_menu_mouse_event(NSView* view, NSPoint position)
+{
+    return [NSEvent mouseEventWithType:NSEventTypeRightMouseUp
+                              location:[view convertPoint:position fromView:nil]
+                         modifierFlags:0
+                             timestamp:0
+                          windowNumber:[[view window] windowNumber]
+                               context:nil
+                           eventNumber:1
+                            clickCount:1
+                              pressure:1.0];
+}
+
 static KeyCode ns_key_code_to_key_code(unsigned short key_code, KeyModifier& modifiers)
 {
     auto augment_modifiers_and_return = [&](auto key, auto modifier) {
