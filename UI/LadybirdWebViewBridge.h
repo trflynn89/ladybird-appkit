@@ -35,6 +35,9 @@ public:
     void mouse_move_event(Gfx::IntPoint, GUI::MouseButton, KeyModifier);
     void mouse_double_click_event(Gfx::IntPoint, GUI::MouseButton, KeyModifier);
 
+    void key_down_event(KeyCode, KeyModifier, u32);
+    void key_up_event(KeyCode, KeyModifier, u32);
+
     struct Paintable {
         Gfx::Bitmap& bitmap;
         Gfx::IntSize bitmap_size;

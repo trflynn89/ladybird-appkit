@@ -261,4 +261,16 @@
     m_web_view_bridge->mouse_move_event(position, button, modifiers);
 }
 
+- (void)keyDown:(NSEvent*)event
+{
+    auto [key_code, modifiers, code_point] = Ladybird::ns_event_to_key_event(event);
+    m_web_view_bridge->key_down_event(key_code, modifiers, code_point);
+}
+
+- (void)keyUp:(NSEvent*)event
+{
+    auto [key_code, modifiers, code_point] = Ladybird::ns_event_to_key_event(event);
+    m_web_view_bridge->key_up_event(key_code, modifiers, code_point);
+}
+
 @end

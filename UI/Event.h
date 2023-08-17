@@ -21,4 +21,11 @@ struct MouseEvent {
 };
 MouseEvent ns_event_to_mouse_event(NSEvent*, NSView*, GUI::MouseButton);
 
+struct KeyEvent {
+    KeyCode key_code { KeyCode::Key_Invalid };
+    KeyModifier modifiers { KeyModifier::Mod_None };
+    u32 code_point { 0 };
+};
+KeyEvent ns_event_to_key_event(NSEvent*);
+
 }
