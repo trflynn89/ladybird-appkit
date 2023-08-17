@@ -35,6 +35,8 @@ static NSString* const TOOLBAR_TAB_OVERVIEW_IDENTIFIER = @"ToolbarTabOverviewIde
 @property (nonatomic, strong) NSToolbarItem* new_tab_toolbar_item;
 @property (nonatomic, strong) NSToolbarItem* tab_overview_toolbar_item;
 
+@property (nonatomic, assign) NSLayoutConstraint* location_toolbar_item_width;
+
 @end
 
 @implementation TabController
@@ -223,6 +225,14 @@ static NSString* const TOOLBAR_TAB_OVERVIEW_IDENTIFIER = @"ToolbarTabOverviewIde
 
 - (void)windowDidResize:(NSNotification*)notification
 {
+    if (self.location_toolbar_item_width) {
+        self.location_toolbar_item_width.active = NO;
+    }
+
+    auto width = [self window].frame.size.width * 0.6;
+    self.location_toolbar_item_width = [[[self.location_toolbar_item view] widthAnchor] constraintEqualToConstant:width];
+    self.location_toolbar_item_width.active = YES;
+
     [[self tab].web_view handle_resize];
 }
 
