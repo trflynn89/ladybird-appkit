@@ -16,10 +16,12 @@
 #include <Kernel/API/KeyCode.h>
 #include <LibGUI/Event.h>
 
-class LadybirdWebViewBridge final : public WebView::ViewImplementation {
+namespace Ladybird {
+
+class WebViewBridge final : public WebView::ViewImplementation {
 public:
-    static ErrorOr<NonnullOwnPtr<LadybirdWebViewBridge>> create(Vector<Gfx::IntRect> screen_rects, float device_pixel_ratio);
-    virtual ~LadybirdWebViewBridge() override;
+    static ErrorOr<NonnullOwnPtr<WebViewBridge>> create(Vector<Gfx::IntRect> screen_rects, float device_pixel_ratio);
+    virtual ~WebViewBridge() override;
 
     float device_pixel_ratio() const { return m_device_pixel_ratio; }
     float inverse_device_pixel_ratio() const { return m_inverse_device_pixel_ratio; }
@@ -48,7 +50,7 @@ public:
     Function<void()> on_ready_to_paint;
 
 private:
-    LadybirdWebViewBridge(Vector<Gfx::IntRect> screen_rects, float device_pixel_ratio);
+    WebViewBridge(Vector<Gfx::IntRect> screen_rects, float device_pixel_ratio);
 
     virtual void notify_server_did_layout(Badge<WebView::WebContentClient>, Gfx::IntSize content_size) override;
     virtual void notify_server_did_paint(Badge<WebView::WebContentClient>, i32 bitmap_id, Gfx::IntSize) override;
@@ -83,3 +85,5 @@ private:
 
     float m_inverse_device_pixel_ratio { 1.0 };
 };
+
+}

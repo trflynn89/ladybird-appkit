@@ -16,7 +16,7 @@
 
 @interface LadybirdWebView ()
 {
-    OwnPtr<LadybirdWebViewBridge> m_web_view_bridge;
+    OwnPtr<Ladybird::WebViewBridge> m_web_view_bridge;
     Optional<NSTrackingRectTag> m_mouse_tracking_tag;
 }
 
@@ -39,7 +39,7 @@
 
         auto device_pixel_ratio = [[NSScreen mainScreen] backingScaleFactor];
 
-        m_web_view_bridge = MUST(LadybirdWebViewBridge::create(move(screen_rects), device_pixel_ratio));
+        m_web_view_bridge = MUST(Ladybird::WebViewBridge::create(move(screen_rects), device_pixel_ratio));
         [self set_web_view_callbacks];
     }
 
@@ -55,17 +55,17 @@
 
 - (void)handle_resize
 {
-    [self update_viewport_rect:LadybirdWebViewBridge::ForResize::Yes];
+    [self update_viewport_rect:Ladybird::WebViewBridge::ForResize::Yes];
 }
 
 - (void)handle_scroll
 {
-    [self update_viewport_rect:LadybirdWebViewBridge::ForResize::No];
+    [self update_viewport_rect:Ladybird::WebViewBridge::ForResize::No];
 }
 
 #pragma mark - Private methods
 
-- (void)update_viewport_rect:(LadybirdWebViewBridge::ForResize)for_resize
+- (void)update_viewport_rect:(Ladybird::WebViewBridge::ForResize)for_resize
 {
     auto content_rect = [self frame];
     auto document_rect = [[self documentView] frame];

@@ -14,18 +14,20 @@
 #include <LibWeb/Crypto/Crypto.h>
 #include <UI/LadybirdWebViewBridge.h>
 
+namespace Ladybird {
+
 template<typename T>
 static T scale_for_device(T size, float device_pixel_ratio)
 {
     return size.template to_type<float>().scaled(device_pixel_ratio).template to_type<int>();
 }
 
-ErrorOr<NonnullOwnPtr<LadybirdWebViewBridge>> LadybirdWebViewBridge::create(Vector<Gfx::IntRect> screen_rects, float device_pixel_ratio)
+ErrorOr<NonnullOwnPtr<WebViewBridge>> WebViewBridge::create(Vector<Gfx::IntRect> screen_rects, float device_pixel_ratio)
 {
-    return adopt_nonnull_own_or_enomem(new (nothrow) LadybirdWebViewBridge(move(screen_rects), device_pixel_ratio));
+    return adopt_nonnull_own_or_enomem(new (nothrow) WebViewBridge(move(screen_rects), device_pixel_ratio));
 }
 
-LadybirdWebViewBridge::LadybirdWebViewBridge(Vector<Gfx::IntRect> screen_rects, float device_pixel_ratio)
+WebViewBridge::WebViewBridge(Vector<Gfx::IntRect> screen_rects, float device_pixel_ratio)
     : m_screen_rects(move(screen_rects))
 {
     m_device_pixel_ratio = device_pixel_ratio;
@@ -34,9 +36,9 @@ LadybirdWebViewBridge::LadybirdWebViewBridge(Vector<Gfx::IntRect> screen_rects, 
     create_client(WebView::EnableCallgrindProfiling::No);
 }
 
-LadybirdWebViewBridge::~LadybirdWebViewBridge() = default;
+WebViewBridge::~WebViewBridge() = default;
 
-void LadybirdWebViewBridge::set_viewport_rect(Gfx::IntRect viewport_rect, ForResize for_resize)
+void WebViewBridge::set_viewport_rect(Gfx::IntRect viewport_rect, ForResize for_resize)
 {
     viewport_rect.set_size(scale_for_device(viewport_rect.size(), m_device_pixel_ratio));
     m_viewport_rect = viewport_rect;
@@ -49,41 +51,41 @@ void LadybirdWebViewBridge::set_viewport_rect(Gfx::IntRect viewport_rect, ForRes
     }
 }
 
-void LadybirdWebViewBridge::mouse_down_event(Gfx::IntPoint position, GUI::MouseButton button, KeyModifier modifiers)
+void WebViewBridge::mouse_down_event(Gfx::IntPoint position, GUI::MouseButton button, KeyModifier modifiers)
 {
     position = scale_for_device(position, m_device_pixel_ratio);
     client().async_mouse_down(to_content_position(position), to_underlying(button), to_underlying(button), modifiers);
 }
 
-void LadybirdWebViewBridge::mouse_up_event(Gfx::IntPoint position, GUI::MouseButton button, KeyModifier modifiers)
+void WebViewBridge::mouse_up_event(Gfx::IntPoint position, GUI::MouseButton button, KeyModifier modifiers)
 {
     position = scale_for_device(position, m_device_pixel_ratio);
     client().async_mouse_up(to_content_position(position), to_underlying(button), to_underlying(button), modifiers);
 }
 
-void LadybirdWebViewBridge::mouse_move_event(Gfx::IntPoint position, GUI::MouseButton button, KeyModifier modifiers)
+void WebViewBridge::mouse_move_event(Gfx::IntPoint position, GUI::MouseButton button, KeyModifier modifiers)
 {
     position = scale_for_device(position, m_device_pixel_ratio);
     client().async_mouse_move(to_content_position(position), 0, to_underlying(button), modifiers);
 }
 
-void LadybirdWebViewBridge::mouse_double_click_event(Gfx::IntPoint position, GUI::MouseButton button, KeyModifier modifiers)
+void WebViewBridge::mouse_double_click_event(Gfx::IntPoint position, GUI::MouseButton button, KeyModifier modifiers)
 {
     position = scale_for_device(position, m_device_pixel_ratio);
     client().async_doubleclick(to_content_position(position), button, to_underlying(button), modifiers);
 }
 
-void LadybirdWebViewBridge::key_down_event(KeyCode key_code, KeyModifier modifiers, u32 code_point)
+void WebViewBridge::key_down_event(KeyCode key_code, KeyModifier modifiers, u32 code_point)
 {
     client().async_key_down(key_code, modifiers, code_point);
 }
 
-void LadybirdWebViewBridge::key_up_event(KeyCode key_code, KeyModifier modifiers, u32 code_point)
+void WebViewBridge::key_up_event(KeyCode key_code, KeyModifier modifiers, u32 code_point)
 {
     client().async_key_up(key_code, modifiers, code_point);
 }
 
-Optional<LadybirdWebViewBridge::Paintable> LadybirdWebViewBridge::paintable()
+Optional<WebViewBridge::Paintable> WebViewBridge::paintable()
 {
     Gfx::Bitmap* bitmap = nullptr;
     Gfx::IntSize bitmap_size;
@@ -101,7 +103,7 @@ Optional<LadybirdWebViewBridge::Paintable> LadybirdWebViewBridge::paintable()
     return Paintable { *bitmap, bitmap_size };
 }
 
-void LadybirdWebViewBridge::notify_server_did_layout(Badge<WebView::WebContentClient>, Gfx::IntSize content_size)
+void WebViewBridge::notify_server_did_layout(Badge<WebView::WebContentClient>, Gfx::IntSize content_size)
 {
     if (on_layout) {
         content_size = scale_for_device(content_size, m_inverse_device_pixel_ratio);
@@ -109,7 +111,7 @@ void LadybirdWebViewBridge::notify_server_did_layout(Badge<WebView::WebContentCl
     }
 }
 
-void LadybirdWebViewBridge::notify_server_did_paint(Badge<WebView::WebContentClient>, i32 bitmap_id, Gfx::IntSize size)
+void WebViewBridge::notify_server_did_paint(Badge<WebView::WebContentClient>, i32 bitmap_id, Gfx::IntSize size)
 {
     if (m_client_state.back_bitmap.id == bitmap_id) {
         m_client_state.has_usable_bitmap = true;
@@ -129,65 +131,65 @@ void LadybirdWebViewBridge::notify_server_did_paint(Badge<WebView::WebContentCli
     }
 }
 
-void LadybirdWebViewBridge::notify_server_did_invalidate_content_rect(Badge<WebView::WebContentClient>, Gfx::IntRect const&)
+void WebViewBridge::notify_server_did_invalidate_content_rect(Badge<WebView::WebContentClient>, Gfx::IntRect const&)
 {
     request_repaint();
 }
 
-void LadybirdWebViewBridge::notify_server_did_change_selection(Badge<WebView::WebContentClient>)
+void WebViewBridge::notify_server_did_change_selection(Badge<WebView::WebContentClient>)
 {
     request_repaint();
 }
 
-void LadybirdWebViewBridge::notify_server_did_request_cursor_change(Badge<WebView::WebContentClient>, Gfx::StandardCursor)
+void WebViewBridge::notify_server_did_request_cursor_change(Badge<WebView::WebContentClient>, Gfx::StandardCursor)
 {
 }
 
-void LadybirdWebViewBridge::notify_server_did_request_scroll(Badge<WebView::WebContentClient>, i32, i32)
+void WebViewBridge::notify_server_did_request_scroll(Badge<WebView::WebContentClient>, i32, i32)
 {
 }
 
-void LadybirdWebViewBridge::notify_server_did_request_scroll_to(Badge<WebView::WebContentClient>, Gfx::IntPoint)
+void WebViewBridge::notify_server_did_request_scroll_to(Badge<WebView::WebContentClient>, Gfx::IntPoint)
 {
 }
 
-void LadybirdWebViewBridge::notify_server_did_request_scroll_into_view(Badge<WebView::WebContentClient>, Gfx::IntRect const&)
+void WebViewBridge::notify_server_did_request_scroll_into_view(Badge<WebView::WebContentClient>, Gfx::IntRect const&)
 {
 }
 
-void LadybirdWebViewBridge::notify_server_did_enter_tooltip_area(Badge<WebView::WebContentClient>, Gfx::IntPoint, DeprecatedString const&)
+void WebViewBridge::notify_server_did_enter_tooltip_area(Badge<WebView::WebContentClient>, Gfx::IntPoint, DeprecatedString const&)
 {
 }
 
-void LadybirdWebViewBridge::notify_server_did_leave_tooltip_area(Badge<WebView::WebContentClient>)
+void WebViewBridge::notify_server_did_leave_tooltip_area(Badge<WebView::WebContentClient>)
 {
 }
 
-void LadybirdWebViewBridge::notify_server_did_request_alert(Badge<WebView::WebContentClient>, String const&)
+void WebViewBridge::notify_server_did_request_alert(Badge<WebView::WebContentClient>, String const&)
 {
 }
 
-void LadybirdWebViewBridge::notify_server_did_request_confirm(Badge<WebView::WebContentClient>, String const&)
+void WebViewBridge::notify_server_did_request_confirm(Badge<WebView::WebContentClient>, String const&)
 {
 }
 
-void LadybirdWebViewBridge::notify_server_did_request_prompt(Badge<WebView::WebContentClient>, String const&, String const&)
+void WebViewBridge::notify_server_did_request_prompt(Badge<WebView::WebContentClient>, String const&, String const&)
 {
 }
 
-void LadybirdWebViewBridge::notify_server_did_request_set_prompt_text(Badge<WebView::WebContentClient>, String const&)
+void WebViewBridge::notify_server_did_request_set_prompt_text(Badge<WebView::WebContentClient>, String const&)
 {
 }
 
-void LadybirdWebViewBridge::notify_server_did_request_accept_dialog(Badge<WebView::WebContentClient>)
+void WebViewBridge::notify_server_did_request_accept_dialog(Badge<WebView::WebContentClient>)
 {
 }
 
-void LadybirdWebViewBridge::notify_server_did_request_dismiss_dialog(Badge<WebView::WebContentClient>)
+void WebViewBridge::notify_server_did_request_dismiss_dialog(Badge<WebView::WebContentClient>)
 {
 }
 
-void LadybirdWebViewBridge::notify_server_did_request_file(Badge<WebView::WebContentClient>, DeprecatedString const& path, i32 request_id)
+void WebViewBridge::notify_server_did_request_file(Badge<WebView::WebContentClient>, DeprecatedString const& path, i32 request_id)
 {
     auto file = Core::File::open(path, Core::File::OpenMode::Read);
 
@@ -197,30 +199,30 @@ void LadybirdWebViewBridge::notify_server_did_request_file(Badge<WebView::WebCon
         client().async_handle_file_return(0, IPC::File(*file.value()), request_id);
 }
 
-void LadybirdWebViewBridge::notify_server_did_finish_handling_input_event(bool)
+void WebViewBridge::notify_server_did_finish_handling_input_event(bool)
 {
 }
 
-void LadybirdWebViewBridge::update_zoom()
+void WebViewBridge::update_zoom()
 {
 }
 
-Gfx::IntRect LadybirdWebViewBridge::viewport_rect() const
+Gfx::IntRect WebViewBridge::viewport_rect() const
 {
     return m_viewport_rect;
 }
 
-Gfx::IntPoint LadybirdWebViewBridge::to_content_position(Gfx::IntPoint widget_position) const
+Gfx::IntPoint WebViewBridge::to_content_position(Gfx::IntPoint widget_position) const
 {
     return widget_position;
 }
 
-Gfx::IntPoint LadybirdWebViewBridge::to_widget_position(Gfx::IntPoint content_position) const
+Gfx::IntPoint WebViewBridge::to_widget_position(Gfx::IntPoint content_position) const
 {
     return content_position;
 }
 
-void LadybirdWebViewBridge::create_client(WebView::EnableCallgrindProfiling enable_callgrind_profiling)
+void WebViewBridge::create_client(WebView::EnableCallgrindProfiling enable_callgrind_profiling)
 {
     m_client_state = {};
 
@@ -247,11 +249,13 @@ void LadybirdWebViewBridge::create_client(WebView::EnableCallgrindProfiling enab
     }
 }
 
-void LadybirdWebViewBridge::update_palette()
+void WebViewBridge::update_palette()
 {
     auto theme = MUST(Gfx::load_system_theme(DeprecatedString::formatted("{}/res/themes/Default.ini", s_serenity_resource_root)));
     auto palette_impl = Gfx::PaletteImpl::create_with_anonymous_buffer(theme);
     auto palette = Gfx::Palette(move(palette_impl));
 
     client().async_update_system_theme(move(theme));
+}
+
 }
