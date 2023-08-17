@@ -24,6 +24,7 @@ add_executable(Ladybird MACOSX_BUNDLE
     main.mm
     Application/ApplicationDelegate.mm
     Application/EventLoopImplementation.mm
+    UI/Event.mm
     UI/LadybirdWebView.mm
     UI/LadybirdWebViewBridge.cpp
     UI/Tab.mm
