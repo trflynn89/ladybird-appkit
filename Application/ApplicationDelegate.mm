@@ -49,7 +49,7 @@
         self.managed_tabs = [[NSMutableArray alloc] init];
 
         m_initial_url = move(initial_url);
-        m_new_tab_page_url = rebase_url_on_serenity_resource_root(Browser::default_new_tab_url);
+        m_new_tab_page_url = Ladybird::rebase_url_on_serenity_resource_root(Browser::default_new_tab_url);
     }
 
     return self;

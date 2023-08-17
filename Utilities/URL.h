@@ -11,7 +11,11 @@
 
 #import <System/Cocoa.h>
 
+namespace Ladybird {
+
 URL sanitize_url(NSString*);
 URL sanitize_url(StringView);
 
 URL rebase_url_on_serenity_resource_root(StringView);
+
+}

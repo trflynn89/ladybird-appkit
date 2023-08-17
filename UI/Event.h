@@ -12,9 +12,13 @@
 
 #import <System/Cocoa.h>
 
+namespace Ladybird {
+
 struct MouseEvent {
     Gfx::IntPoint position {};
     GUI::MouseButton button { GUI::MouseButton::Primary };
     KeyModifier modifiers { KeyModifier::Mod_None };
 };
 MouseEvent ns_event_to_mouse_event(NSEvent*, NSView*, GUI::MouseButton);
+
+}

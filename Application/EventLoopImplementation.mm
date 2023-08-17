@@ -14,6 +14,8 @@
 #import <System/Cocoa.h>
 #import <System/CoreFoundation.h>
 
+namespace Ladybird {
+
 struct ThreadData;
 static thread_local ThreadData* s_thread_data;
 
@@ -190,4 +192,6 @@ void CFEventLoopImplementation::post_event(Core::EventReceiver& receiver, Nonnul
 
     if (&m_thread_event_queue != &Core::ThreadEventQueue::current())
         wake();
+}
+
 }

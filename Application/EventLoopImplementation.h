@@ -10,6 +10,8 @@
 #include <AK/NonnullOwnPtr.h>
 #include <LibCore/EventLoopImplementation.h>
 
+namespace Ladybird {
+
 class CFEventLoopManager final : public Core::EventLoopManager {
 public:
     virtual NonnullOwnPtr<Core::EventLoopImplementation> make_implementation() override;
@@ -47,3 +49,5 @@ private:
 
     int m_exit_code { 0 };
 };
+
+}

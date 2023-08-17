@@ -12,6 +12,8 @@
 
 #import <Utilities/URL.h>
 
+namespace Ladybird {
+
 URL sanitize_url(StringView url_string)
 {
     if (url_string.starts_with('/') || FileSystem::exists(url_string))
@@ -44,4 +46,6 @@ URL rebase_url_on_serenity_resource_root(StringView url_string)
     url.set_paths(move(paths));
 
     return url;
+}
+
 }

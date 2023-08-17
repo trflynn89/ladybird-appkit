@@ -14,6 +14,8 @@
 
 #import <System/Cocoa.h>
 
+namespace Ladybird {
+
 String ns_string_to_string(NSString*);
 NSString* string_to_ns_string(StringView);
 
@@ -25,3 +27,5 @@ NSSize gfx_size_to_ns_size(Gfx::IntSize);
 
 Gfx::IntPoint ns_point_to_gfx_point(NSPoint);
 NSPoint gfx_point_to_ns_point(Gfx::IntPoint);
+
+}

@@ -24,7 +24,7 @@ ErrorOr<int> serenity_main(Main::Arguments arguments)
 {
     [NSApplication sharedApplication];
 
-    Core::EventLoopManager::install(*new CFEventLoopManager);
+    Core::EventLoopManager::install(*new Ladybird::CFEventLoopManager);
     Core::EventLoop event_loop;
 
     platform_init();
@@ -41,7 +41,7 @@ ErrorOr<int> serenity_main(Main::Arguments arguments)
     args_parser.parse(arguments);
 
     Optional<URL> initial_url;
-    if (auto parsed_url = sanitize_url(url); parsed_url.is_valid()) {
+    if (auto parsed_url = Ladybird::sanitize_url(url); parsed_url.is_valid()) {
         initial_url = move(parsed_url);
     }
 

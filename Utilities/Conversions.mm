@@ -6,6 +6,8 @@
 
 #import <Utilities/Conversions.h>
 
+namespace Ladybird {
+
 String ns_string_to_string(NSString* string)
 {
     auto const* utf8 = [string UTF8String];
@@ -65,4 +67,6 @@ NSPoint gfx_point_to_ns_point(Gfx::IntPoint point)
     return NSMakePoint(
         static_cast<CGFloat>(point.x()),
         static_cast<CGFloat>(point.y()));
+}
+
 }
