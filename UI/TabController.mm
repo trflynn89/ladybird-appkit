@@ -93,6 +93,11 @@ static NSString* const TOOLBAR_TAB_OVERVIEW_IDENTIFIER = @"ToolbarTabOverviewIde
     NSLog(@"TODO: Implement navigateForward");
 }
 
+- (void)reload:(id)sender
+{
+    NSLog(@"TODO: Implement reload");
+}
+
 - (void)createNewTab:(id)sender
 {
     auto* delegate = (ApplicationDelegate*)[NSApp delegate];
