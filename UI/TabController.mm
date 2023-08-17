@@ -187,7 +187,9 @@ static NSString* const TOOLBAR_TAB_OVERVIEW_IDENTIFIER = @"ToolbarTabOverviewIde
         _toolbar_identifiers = @[
             TOOLBAR_NAVIGATE_BACK_IDENTIFIER,
             TOOLBAR_NAVIGATE_FORWARD_IDENTIFIER,
+            NSToolbarFlexibleSpaceItemIdentifier,
             TOOLBAR_LOCATION_IDENTIFIER,
+            NSToolbarFlexibleSpaceItemIdentifier,
             TOOLBAR_NEW_TAB_IDENTIFIER,
             TOOLBAR_TAB_OVERVIEW_IDENTIFIER,
         ];
