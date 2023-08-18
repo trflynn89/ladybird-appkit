@@ -4,10 +4,13 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
+#include <Browser/History.h>
+
 #import <Application/ApplicationDelegate.h>
 #import <UI/LadybirdWebView.h>
 #import <UI/Tab.h>
 #import <UI/TabController.h>
+#import <Utilities/Conversions.h>
 #import <Utilities/URL.h>
 
 #if !__has_feature(objc_arc)
@@ -22,9 +25,18 @@ static NSString* const TOOLBAR_LOCATION_IDENTIFIER = @"ToolbarLocationIdentifier
 static NSString* const TOOLBAR_NEW_TAB_IDENTIFIER = @"ToolbarNewTabIdentifier";
 static NSString* const TOOLBAR_TAB_OVERVIEW_IDENTIFIER = @"ToolbarTabOverviewIdentifer";
 
+enum class IsHistoryNavigation {
+    Yes,
+    No,
+};
+
 @interface TabController () <NSToolbarDelegate, NSSearchFieldDelegate>
 {
     URL m_url;
+    DeprecatedString m_title;
+
+    Browser::History m_history;
+    IsHistoryNavigation m_is_history_navigation;
 }
 
 @property (nonatomic, strong) NSToolbar* toolbar;
@@ -61,6 +73,7 @@ static NSString* const TOOLBAR_TAB_OVERVIEW_IDENTIFIER = @"ToolbarTabOverviewIde
         [self.toolbar setSizeMode:NSToolbarSizeModeRegular];
 
         m_url = move(url);
+        m_is_history_navigation = IsHistoryNavigation::No;
     }
 
     return self;
@@ -71,6 +84,37 @@ static NSString* const TOOLBAR_TAB_OVERVIEW_IDENTIFIER = @"ToolbarTabOverviewIde
 - (void)load:(URL const&)url
 {
     [[self tab].web_view load:url];
+}
+
+- (void)onLoadStart:(URL const&)url isRedirect:(BOOL)isRedirect
+{
+    if (isRedirect) {
+        m_history.replace_current(url, m_title);
+    }
+
+    auto* ns_url = Ladybird::string_to_ns_string(url.serialize());
+    [self setLocationToolbarText:ns_url];
+
+    if (m_is_history_navigation == IsHistoryNavigation::Yes) {
+        m_is_history_navigation = IsHistoryNavigation::No;
+    } else {
+        m_history.push(url, m_title);
+    }
+
+    auto* navigate_back_button = (NSButton*)[[self navigate_back_toolbar_item] view];
+    [navigate_back_button setEnabled:m_history.can_go_back()];
+
+    auto* navigate_forward_button = (NSButton*)[[self navigate_forward_toolbar_item] view];
+    [navigate_forward_button setEnabled:m_history.can_go_forward()];
+}
+
+- (void)onTitleChange:(DeprecatedString const&)title
+{
+    m_title = title;
+    m_history.update_title(m_title);
+
+    auto* ns_title = Ladybird::string_to_ns_string(m_title);
+    [[self tab] setTitle:ns_title];
 }
 
 - (void)focusLocationToolbarItem
@@ -88,17 +132,36 @@ static NSString* const TOOLBAR_TAB_OVERVIEW_IDENTIFIER = @"ToolbarTabOverviewIde
 
 - (void)navigateBack:(id)sender
 {
-    NSLog(@"TODO: Implement navigateBack");
+    if (!m_history.can_go_back()) {
+        return;
+    }
+
+    m_is_history_navigation = IsHistoryNavigation::Yes;
+    m_history.go_back();
+
+    auto url = m_history.current().url;
+    [self load:url];
 }
 
 - (void)navigateForward:(id)sender
 {
-    NSLog(@"TODO: Implement navigateForward");
+    if (!m_history.can_go_forward()) {
+        return;
+    }
+
+    m_is_history_navigation = IsHistoryNavigation::Yes;
+    m_history.go_forward();
+
+    auto url = m_history.current().url;
+    [self load:url];
 }
 
 - (void)reload:(id)sender
 {
-    NSLog(@"TODO: Implement reload");
+    m_is_history_navigation = IsHistoryNavigation::Yes;
+
+    auto url = m_history.current().url;
+    [self load:url];
 }
 
 #pragma mark - Private methods
@@ -137,6 +200,7 @@ static NSString* const TOOLBAR_TAB_OVERVIEW_IDENTIFIER = @"ToolbarTabOverviewIde
     if (!_navigate_back_toolbar_item) {
         auto* button = [self create_button:NSImageNameGoBackTemplate
                                with_action:@selector(navigateBack:)];
+        [button setEnabled:NO];
 
         _navigate_back_toolbar_item = [[NSToolbarItem alloc] initWithItemIdentifier:TOOLBAR_NAVIGATE_BACK_IDENTIFIER];
         [_navigate_back_toolbar_item setView:button];
@@ -150,6 +214,7 @@ static NSString* const TOOLBAR_TAB_OVERVIEW_IDENTIFIER = @"ToolbarTabOverviewIde
     if (!_navigate_forward_toolbar_item) {
         auto* button = [self create_button:NSImageNameGoForwardTemplate
                                with_action:@selector(navigateForward:)];
+        [button setEnabled:NO];
 
         _navigate_forward_toolbar_item = [[NSToolbarItem alloc] initWithItemIdentifier:TOOLBAR_NAVIGATE_FORWARD_IDENTIFIER];
         [_navigate_forward_toolbar_item setView:button];

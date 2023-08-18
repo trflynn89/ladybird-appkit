@@ -121,14 +121,12 @@ static constexpr NSInteger CONTEXT_MENU_LOOP_TAG = 4;
         [self setNeedsDisplay:YES];
     };
 
-    m_web_view_bridge->on_load_start = [self](auto const& url, bool) {
-        auto* ns_url = Ladybird::string_to_ns_string(url.serialize());
-        [[self tabController] setLocationToolbarText:ns_url];
+    m_web_view_bridge->on_load_start = [self](auto const& url, bool is_redirect) {
+        [[self tabController] onLoadStart:url isRedirect:is_redirect];
     };
 
     m_web_view_bridge->on_title_change = [self](auto const& title) {
-        auto* ns_title = Ladybird::string_to_ns_string(title);
-        [[self tab] setTitle:ns_title];
+        [[self tabController] onTitleChange:title];
     };
 
     m_web_view_bridge->on_context_menu_request = [self](auto position) {
