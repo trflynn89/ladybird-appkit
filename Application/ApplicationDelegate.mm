@@ -19,6 +19,9 @@
 {
     Optional<URL> m_initial_url;
     URL m_new_tab_page_url;
+
+    // This will always be populated, but we cannot have a non-default constructible instance variable.
+    Optional<Browser::CookieJar> m_cookie_jar;
 }
 
 @property (nonatomic, strong) NSMutableArray<TabController*>* managed_tabs;
@@ -36,6 +39,7 @@
 @implementation ApplicationDelegate
 
 - (instancetype)init:(Optional<URL>)initial_url
+       withCookieJar:(Browser::CookieJar)cookie_jar
 {
     if (self = [super init]) {
         [NSApp setMainMenu:[[NSMenu alloc] init]];
@@ -52,6 +56,7 @@
 
         m_initial_url = move(initial_url);
         m_new_tab_page_url = Ladybird::rebase_url_on_serenity_resource_root(Browser::default_new_tab_url);
+        m_cookie_jar = move(cookie_jar);
     }
 
     return self;
@@ -78,6 +83,11 @@
 - (void)removeTab:(TabController*)controller
 {
     [self.managed_tabs removeObject:controller];
+}
+
+- (Browser::CookieJar&)cookieJar
+{
+    return *m_cookie_jar;
 }
 
 #pragma mark - Private methods

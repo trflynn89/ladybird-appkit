@@ -183,6 +183,31 @@ static constexpr NSInteger CONTEXT_MENU_LOOP_TAG = 4;
         auto* event = Ladybird::create_context_menu_mouse_event(self, position);
         [NSMenu popUpContextMenu:self.video_context_menu withEvent:event forView:self];
     };
+
+    m_web_view_bridge->on_get_all_cookies = [](auto const& url) {
+        auto* delegate = (ApplicationDelegate*)[NSApp delegate];
+        return [delegate cookieJar].get_all_cookies(url);
+    };
+
+    m_web_view_bridge->on_get_named_cookie = [](auto const& url, auto const& name) {
+        auto* delegate = (ApplicationDelegate*)[NSApp delegate];
+        return [delegate cookieJar].get_named_cookie(url, name);
+    };
+
+    m_web_view_bridge->on_get_cookie = [](auto const& url, auto source) -> DeprecatedString {
+        auto* delegate = (ApplicationDelegate*)[NSApp delegate];
+        return [delegate cookieJar].get_cookie(url, source);
+    };
+
+    m_web_view_bridge->on_set_cookie = [](auto const& url, auto const& cookie, auto source) {
+        auto* delegate = (ApplicationDelegate*)[NSApp delegate];
+        [delegate cookieJar].set_cookie(url, cookie, source);
+    };
+
+    m_web_view_bridge->on_update_cookie = [](auto const& cookie) {
+        auto* delegate = (ApplicationDelegate*)[NSApp delegate];
+        [delegate cookieJar].update_cookie(cookie);
+    };
 }
 
 - (Tab*)tab
