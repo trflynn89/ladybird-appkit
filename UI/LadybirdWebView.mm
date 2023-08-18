@@ -127,6 +127,24 @@ static constexpr NSInteger CONTEXT_MENU_LOOP_TAG = 4;
         [self setNeedsDisplay:YES];
     };
 
+    m_web_view_bridge->on_new_tab = [](auto activate_tab) {
+        auto* delegate = (ApplicationDelegate*)[NSApp delegate];
+        auto* controller = [delegate createNewTab:"about:blank"sv activateTab:activate_tab];
+
+        auto* tab = (Tab*)[controller window];
+        auto* web_view = [tab web_view];
+
+        return web_view->m_web_view_bridge->handle();
+    };
+
+    m_web_view_bridge->on_activate_tab = [self]() {
+        [[self tab] orderFront:nil];
+    };
+
+    m_web_view_bridge->on_close = [self]() {
+        [[self tab] close];
+    };
+
     m_web_view_bridge->on_load_start = [self](auto const& url, bool is_redirect) {
         [[self tabController] onLoadStart:url isRedirect:is_redirect];
     };
