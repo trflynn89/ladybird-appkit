@@ -76,6 +76,12 @@
 
 - (TabController*)createNewTab:(Optional<URL> const&)url
 {
+    return [self createNewTab:url activateTab:Web::HTML::ActivateTab::Yes];
+}
+
+- (TabController*)createNewTab:(Optional<URL> const&)url
+                   activateTab:(Web::HTML::ActivateTab)activate_tab
+{
     // This handle must be acquired before creating the new tab.
     auto* current_tab = (Tab*)[NSApp keyWindow];
 
@@ -84,6 +90,11 @@
 
     if (current_tab) {
         [current_tab addTabbedWindow:controller.window ordered:NSWindowAbove];
+
+        // FIXME: Can we create the tabbed window above without it becoming active in the first place?
+        if (activate_tab == Web::HTML::ActivateTab::No) {
+            [current_tab orderFront:nil];
+        }
     }
 
     [self.managed_tabs addObject:controller];

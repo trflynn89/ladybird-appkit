@@ -10,6 +10,7 @@
 #include <AK/StringView.h>
 #include <AK/URL.h>
 #include <Browser/CookieJar.h>
+#include <LibWeb/HTML/ActivateTab.h>
 
 #import <System/Cocoa.h>
 
@@ -23,6 +24,9 @@
       webdriverContentIPCPath:(StringView)webdriver_content_ipc_path;
 
 - (nonnull TabController*)createNewTab:(Optional<URL> const&)url;
+- (nonnull TabController*)createNewTab:(Optional<URL> const&)url
+                           activateTab:(Web::HTML::ActivateTab)activate_tab;
+
 - (void)removeTab:(nonnull TabController*)controller;
 
 - (Browser::CookieJar&)cookieJar;
