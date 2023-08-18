@@ -141,7 +141,7 @@ void CFEventLoopManager::did_post_event()
                                         data1:0
                                         data2:0];
 
-    [NSApp postEvent:event atStart:YES];
+    [NSApp postEvent:event atStart:NO];
 }
 
 NonnullOwnPtr<CFEventLoopImplementation> CFEventLoopImplementation::create()
