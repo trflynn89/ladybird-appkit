@@ -31,6 +31,7 @@
 - (NSMenuItem*)createEditMenu;
 - (NSMenuItem*)createViewMenu;
 - (NSMenuItem*)createHistoryMenu;
+- (NSMenuItem*)createDebugMenu;
 - (NSMenuItem*)createWindowsMenu;
 - (NSMenuItem*)createHelpMenu;
 
@@ -49,6 +50,7 @@
         [[NSApp mainMenu] addItem:[self createEditMenu]];
         [[NSApp mainMenu] addItem:[self createViewMenu]];
         [[NSApp mainMenu] addItem:[self createHistoryMenu]];
+        [[NSApp mainMenu] addItem:[self createDebugMenu]];
         [[NSApp mainMenu] addItem:[self createWindowsMenu]];
         [[NSApp mainMenu] addItem:[self createHelpMenu]];
 
@@ -110,6 +112,11 @@
     for (TabController* controller in self.managed_tabs) {
         [controller clearHistory];
     }
+}
+
+- (void)dumpCookies:(id)sender
+{
+    m_cookie_jar->dump_cookies();
 }
 
 - (NSMenuItem*)createApplicationMenu
@@ -219,6 +226,19 @@
 
     [submenu addItem:[[NSMenuItem alloc] initWithTitle:@"Clear History"
                                                 action:@selector(clearHistory:)
+                                         keyEquivalent:@""]];
+
+    [menu setSubmenu:submenu];
+    return menu;
+}
+
+- (NSMenuItem*)createDebugMenu
+{
+    auto* menu = [[NSMenuItem alloc] init];
+    auto* submenu = [[NSMenu alloc] initWithTitle:@"Debug"];
+
+    [submenu addItem:[[NSMenuItem alloc] initWithTitle:@"Dump Cookies"
+                                                action:@selector(dumpCookies:)
                                          keyEquivalent:@""]];
 
     [menu setSubmenu:submenu];
