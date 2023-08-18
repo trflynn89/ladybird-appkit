@@ -20,6 +20,8 @@
 - (void)onLoadStart:(URL const&)url isRedirect:(BOOL)isRedirect;
 - (void)onTitleChange:(DeprecatedString const&)title;
 
+- (void)clearHistory;
+
 - (void)focusLocationToolbarItem;
 - (void)setLocationToolbarText:(NSString*)location;
 
