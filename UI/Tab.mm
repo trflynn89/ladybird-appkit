@@ -32,6 +32,9 @@ static constexpr CGFloat const WINDOW_HEIGHT = 800;
                                 defer:NO];
 
     if (self) {
+        self.web_view = [[LadybirdWebView alloc] init];
+        [self.web_view setPostsBoundsChangedNotifications:YES];
+
         [self setTitle:@"New Tab - Ladybird"];
         [self setTitleVisibility:NSWindowTitleHidden];
         [self setIsVisible:YES];
@@ -40,9 +43,6 @@ static constexpr CGFloat const WINDOW_HEIGHT = 800;
         [scroll_view setHasVerticalScroller:YES];
         [scroll_view setHasHorizontalScroller:YES];
         [scroll_view setLineScroll:24];
-
-        self.web_view = [[LadybirdWebView alloc] init];
-        [self.web_view setPostsBoundsChangedNotifications:YES];
 
         [scroll_view setContentView:self.web_view];
         [scroll_view setDocumentView:[[NSView alloc] init]];
@@ -64,6 +64,20 @@ static constexpr CGFloat const WINDOW_HEIGHT = 800;
 - (void)onContentScroll:(NSNotification*)notification
 {
     [[self web_view] handleScroll];
+}
+
+#pragma mark - NSWindow
+
+- (void)setIsVisible:(BOOL)flag
+{
+    [[self web_view] handleVisibility:flag];
+    [super setIsVisible:flag];
+}
+
+- (void)setIsMiniaturized:(BOOL)flag
+{
+    [[self web_view] handleVisibility:!flag];
+    [super setIsMiniaturized:flag];
 }
 
 @end

@@ -16,5 +16,6 @@
 
 - (void)handleResize;
 - (void)handleScroll;
+- (void)handleVisibility:(BOOL)is_visible;
 
 @end
