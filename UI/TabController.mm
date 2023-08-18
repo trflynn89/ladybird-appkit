@@ -79,12 +79,7 @@ static NSString* const TOOLBAR_TAB_OVERVIEW_IDENTIFIER = @"ToolbarTabOverviewIde
     [view setStringValue:location];
 }
 
-#pragma mark - Private methods
-
-- (Tab*)tab
-{
-    return (Tab*)[self window];
-}
+#pragma mark - Actions
 
 - (void)navigateBack:(id)sender
 {
@@ -99,6 +94,13 @@ static NSString* const TOOLBAR_TAB_OVERVIEW_IDENTIFIER = @"ToolbarTabOverviewIde
 - (void)reload:(id)sender
 {
     NSLog(@"TODO: Implement reload");
+}
+
+#pragma mark - Private methods
+
+- (Tab*)tab
+{
+    return (Tab*)[self window];
 }
 
 - (void)createNewTab:(id)sender
