@@ -336,7 +336,9 @@ enum class IsHistoryNavigation {
     self.location_toolbar_item_width = [[[self.location_toolbar_item view] widthAnchor] constraintEqualToConstant:width];
     self.location_toolbar_item_width.active = YES;
 
-    [[self tab].web_view handleResize];
+    if (![[self window] inLiveResize]) {
+        [[[self tab] web_view] handleResize];
+    }
 }
 
 #pragma mark - NSToolbarDelegate
