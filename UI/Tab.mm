@@ -17,7 +17,7 @@ static constexpr CGFloat const WINDOW_HEIGHT = 800;
 
 @implementation Tab
 
-- (instancetype)init:(URL)url
+- (instancetype)init
 {
     auto screen_rect = [[NSScreen mainScreen] frame];
     auto position_x = (NSWidth(screen_rect) - WINDOW_WIDTH) / 2;
@@ -54,8 +54,6 @@ static constexpr CGFloat const WINDOW_HEIGHT = 800;
                  object:[scroll_view contentView]];
 
         [self setContentView:scroll_view];
-
-        [self.web_view load:url];
     }
 
     return self;

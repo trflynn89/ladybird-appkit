@@ -68,6 +68,11 @@ static NSString* const TOOLBAR_TAB_OVERVIEW_IDENTIFIER = @"ToolbarTabOverviewIde
 
 #pragma mark - Public methods
 
+- (void)load:(URL const&)url
+{
+    [[self tab].web_view load:url];
+}
+
 - (void)focusLocationToolbarItem
 {
     [self.window makeFirstResponder:self.location_toolbar_item.view];
@@ -229,7 +234,9 @@ static NSString* const TOOLBAR_TAB_OVERVIEW_IDENTIFIER = @"ToolbarTabOverviewIde
 
 - (IBAction)showWindow:(id)sender
 {
-    self.window = [[Tab alloc] init:m_url];
+    self.window = [[Tab alloc] init];
+    [self load:m_url];
+
     [self.window setDelegate:self];
 
     [self.window setToolbar:self.toolbar];
@@ -311,7 +318,7 @@ static NSString* const TOOLBAR_TAB_OVERVIEW_IDENTIFIER = @"ToolbarTabOverviewIde
 
     auto* url_string = [[text_view textStorage] string];
     auto url = Ladybird::sanitize_url(url_string);
-    [[self tab].web_view load:url];
+    [self load:url];
 
     [self.window makeFirstResponder:nil];
     return YES;

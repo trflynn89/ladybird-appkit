@@ -235,7 +235,7 @@ static void copy_text_to_clipboard(StringView text)
 
 - (void)openLink:(id)sender
 {
-    [self load:m_context_menu_url];
+    [[self tabController] load:m_context_menu_url];
 }
 
 - (void)openLinkInNewTab:(id)sender
