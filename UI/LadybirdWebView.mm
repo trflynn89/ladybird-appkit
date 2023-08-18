@@ -153,6 +153,18 @@ static constexpr NSInteger CONTEXT_MENU_LOOP_TAG = 4;
         [[self tabController] onTitleChange:title];
     };
 
+    m_web_view_bridge->on_navigate_back = [self]() {
+        [[self tabController] navigateBack:nil];
+    };
+
+    m_web_view_bridge->on_navigate_forward = [self]() {
+        [[self tabController] navigateForward:nil];
+    };
+
+    m_web_view_bridge->on_refresh = [self]() {
+        [[self tabController] reload:nil];
+    };
+
     m_web_view_bridge->on_link_click = [self](auto const& url, auto const& target, unsigned modifiers) {
         auto* delegate = (ApplicationDelegate*)[NSApp delegate];
 

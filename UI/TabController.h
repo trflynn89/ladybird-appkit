@@ -20,6 +20,9 @@
 - (void)onLoadStart:(URL const&)url isRedirect:(BOOL)isRedirect;
 - (void)onTitleChange:(DeprecatedString const&)title;
 
+- (void)navigateBack:(id)sender;
+- (void)navigateForward:(id)sender;
+- (void)reload:(id)sender;
 - (void)clearHistory;
 
 - (void)focusLocationToolbarItem;
