@@ -169,6 +169,7 @@ static NSString* const TOOLBAR_TAB_OVERVIEW_IDENTIFIER = @"ToolbarTabOverviewIde
     if (!_location_toolbar_item) {
         auto* location_search_field = [[NSSearchField alloc] init];
         [location_search_field setPlaceholderString:@"Enter web address"];
+        [location_search_field setTextColor:[NSColor textColor]];
         [location_search_field setDelegate:self];
 
         _location_toolbar_item = [[NSToolbarItem alloc] initWithItemIdentifier:TOOLBAR_LOCATION_IDENTIFIER];
