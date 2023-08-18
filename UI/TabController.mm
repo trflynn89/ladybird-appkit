@@ -107,7 +107,7 @@ static NSString* const TOOLBAR_TAB_OVERVIEW_IDENTIFIER = @"ToolbarTabOverviewIde
     [delegate createNewTab:OptionalNone {}];
 }
 
-- (void)show_tab_overview:(id)sender
+- (void)showTabOverview:(id)sender
 {
     [self.window toggleTabOverview:sender];
 }
@@ -196,7 +196,7 @@ static NSString* const TOOLBAR_TAB_OVERVIEW_IDENTIFIER = @"ToolbarTabOverviewIde
 {
     if (!_tab_overview_toolbar_item) {
         auto* button = [self create_button:NSImageNameIconViewTemplate
-                               with_action:@selector(show_tab_overview:)];
+                               with_action:@selector(showTabOverview:)];
 
         _tab_overview_toolbar_item = [[NSToolbarItem alloc] initWithItemIdentifier:TOOLBAR_TAB_OVERVIEW_IDENTIFIER];
         [_tab_overview_toolbar_item setView:button];
