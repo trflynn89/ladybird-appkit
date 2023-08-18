@@ -153,6 +153,23 @@ static constexpr NSInteger CONTEXT_MENU_LOOP_TAG = 4;
         [[self tabController] onTitleChange:title];
     };
 
+    m_web_view_bridge->on_link_click = [self](auto const& url, auto const& target, unsigned modifiers) {
+        auto* delegate = (ApplicationDelegate*)[NSApp delegate];
+
+        if (modifiers == Mod_Super) {
+            [delegate createNewTab:url activateTab:Web::HTML::ActivateTab::No];
+        } else if (target == "_blank"sv) {
+            [delegate createNewTab:url activateTab:Web::HTML::ActivateTab::Yes];
+        } else {
+            [[self tabController] load:url];
+        }
+    };
+
+    m_web_view_bridge->on_link_middle_click = [](auto url, auto, unsigned) {
+        auto* delegate = (ApplicationDelegate*)[NSApp delegate];
+        [delegate createNewTab:url activateTab:Web::HTML::ActivateTab::No];
+    };
+
     m_web_view_bridge->on_context_menu_request = [self](auto position) {
         auto* event = Ladybird::create_context_menu_mouse_event(self, position);
         [NSMenu popUpContextMenu:self.page_context_menu withEvent:event forView:self];
@@ -282,13 +299,12 @@ static void copy_text_to_clipboard(StringView text)
 
 - (void)openLink:(id)sender
 {
-    [[self tabController] load:m_context_menu_url];
+    m_web_view_bridge->on_link_click(m_context_menu_url, {}, 0);
 }
 
 - (void)openLinkInNewTab:(id)sender
 {
-    auto* delegate = (ApplicationDelegate*)[NSApp delegate];
-    [delegate createNewTab:m_context_menu_url];
+    m_web_view_bridge->on_link_middle_click(m_context_menu_url, {}, 0);
 }
 
 - (void)copyLink:(id)sender
