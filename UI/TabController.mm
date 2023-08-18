@@ -101,11 +101,7 @@ enum class IsHistoryNavigation {
         m_history.push(url, m_title);
     }
 
-    auto* navigate_back_button = (NSButton*)[[self navigate_back_toolbar_item] view];
-    [navigate_back_button setEnabled:m_history.can_go_back()];
-
-    auto* navigate_forward_button = (NSButton*)[[self navigate_forward_toolbar_item] view];
-    [navigate_forward_button setEnabled:m_history.can_go_forward()];
+    [self updateNavigationButtonStates];
 }
 
 - (void)onTitleChange:(DeprecatedString const&)title
@@ -115,6 +111,12 @@ enum class IsHistoryNavigation {
 
     auto* ns_title = Ladybird::string_to_ns_string(m_title);
     [[self tab] setTitle:ns_title];
+}
+
+- (void)clearHistory
+{
+    m_history.clear();
+    [self updateNavigationButtonStates];
 }
 
 - (void)focusLocationToolbarItem
@@ -175,6 +177,15 @@ enum class IsHistoryNavigation {
 {
     auto* delegate = (ApplicationDelegate*)[NSApp delegate];
     [delegate createNewTab:OptionalNone {}];
+}
+
+- (void)updateNavigationButtonStates
+{
+    auto* navigate_back_button = (NSButton*)[[self navigate_back_toolbar_item] view];
+    [navigate_back_button setEnabled:m_history.can_go_back()];
+
+    auto* navigate_forward_button = (NSButton*)[[self navigate_forward_toolbar_item] view];
+    [navigate_forward_button setEnabled:m_history.can_go_forward()];
 }
 
 - (void)showTabOverview:(id)sender

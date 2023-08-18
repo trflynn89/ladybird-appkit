@@ -27,6 +27,7 @@
 - (NSMenuItem*)createFileMenu;
 - (NSMenuItem*)createEditMenu;
 - (NSMenuItem*)createViewMenu;
+- (NSMenuItem*)createHistoryMenu;
 - (NSMenuItem*)createWindowsMenu;
 - (NSMenuItem*)createHelpMenu;
 
@@ -43,6 +44,7 @@
         [[NSApp mainMenu] addItem:[self createFileMenu]];
         [[NSApp mainMenu] addItem:[self createEditMenu]];
         [[NSApp mainMenu] addItem:[self createViewMenu]];
+        [[NSApp mainMenu] addItem:[self createHistoryMenu]];
         [[NSApp mainMenu] addItem:[self createWindowsMenu]];
         [[NSApp mainMenu] addItem:[self createHelpMenu]];
 
@@ -91,6 +93,13 @@
     auto* current_tab = (Tab*)[NSApp keyWindow];
     auto* controller = (TabController*)[current_tab windowController];
     [controller focusLocationToolbarItem];
+}
+
+- (void)clearHistory:(id)sender
+{
+    for (TabController* controller in self.managed_tabs) {
+        [controller clearHistory];
+    }
 }
 
 - (NSMenuItem*)createApplicationMenu
@@ -175,6 +184,32 @@
 {
     auto* menu = [[NSMenuItem alloc] init];
     auto* submenu = [[NSMenu alloc] initWithTitle:@"View"];
+
+    [menu setSubmenu:submenu];
+    return menu;
+}
+
+- (NSMenuItem*)createHistoryMenu
+{
+    auto* menu = [[NSMenuItem alloc] init];
+    auto* submenu = [[NSMenu alloc] initWithTitle:@"History"];
+
+    [submenu addItem:[[NSMenuItem alloc] initWithTitle:@"Reload Page"
+                                                action:@selector(reload:)
+                                         keyEquivalent:@"r"]];
+    [submenu addItem:[NSMenuItem separatorItem]];
+
+    [submenu addItem:[[NSMenuItem alloc] initWithTitle:@"Navigate Back"
+                                                action:@selector(navigateBack:)
+                                         keyEquivalent:@"["]];
+    [submenu addItem:[[NSMenuItem alloc] initWithTitle:@"Navigate Forward"
+                                                action:@selector(navigateForward:)
+                                         keyEquivalent:@"]"]];
+    [submenu addItem:[NSMenuItem separatorItem]];
+
+    [submenu addItem:[[NSMenuItem alloc] initWithTitle:@"Clear History"
+                                                action:@selector(clearHistory:)
+                                         keyEquivalent:@""]];
 
     [menu setSubmenu:submenu];
     return menu;
