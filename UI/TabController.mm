@@ -114,19 +114,6 @@ enum class IsHistoryNavigation {
     [[self tab] setTitle:ns_title];
 }
 
-- (void)clearHistory
-{
-    m_history.clear();
-    [self updateNavigationButtonStates];
-}
-
-- (void)focusLocationToolbarItem
-{
-    [self.window makeFirstResponder:self.location_toolbar_item.view];
-}
-
-#pragma mark - Actions
-
 - (void)navigateBack:(id)sender
 {
     if (!m_history.can_go_back()) {
@@ -159,6 +146,17 @@ enum class IsHistoryNavigation {
 
     auto url = m_history.current().url;
     [self load:url];
+}
+
+- (void)clearHistory
+{
+    m_history.clear();
+    [self updateNavigationButtonStates];
+}
+
+- (void)focusLocationToolbarItem
+{
+    [self.window makeFirstResponder:self.location_toolbar_item.view];
 }
 
 #pragma mark - Private methods
