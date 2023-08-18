@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
+#include <Browser/CookieJar.h>
+#include <Browser/Database.h>
 #include <Ladybird/Utilities.h>
 #include <LibCore/ArgsParser.h>
 #include <LibCore/EventLoop.h>
@@ -40,12 +42,29 @@ ErrorOr<int> serenity_main(Main::Arguments arguments)
     args_parser.add_positional_argument(url, "URL to open", "url", Core::ArgsParser::Required::No);
     args_parser.parse(arguments);
 
+#if 0
+    // FIXME: The CFEventLoopImplementation hangs when nested SQL queries are issued, such as when
+    //        CookieJar::store_cookie issues an INSERT statement inside the completion callback for
+    //        a SELECT statement.
+
+    auto sql_server_paths = TRY(get_paths_for_helper_process("SQLServer"sv));
+    auto sql_client = TRY(SQL::SQLClient::launch_server_and_create_client(move(sql_server_paths)));
+
+    auto database = TRY(Browser::Database::create(move(sql_client)));
+    auto cookie_jar = TRY(Browser::CookieJar::create(*database));
+#else
+    auto cookie_jar = Browser::CookieJar::create();
+#endif
+
     Optional<URL> initial_url;
     if (auto parsed_url = Ladybird::sanitize_url(url); parsed_url.is_valid()) {
         initial_url = move(parsed_url);
     }
 
-    [NSApp setDelegate:[[ApplicationDelegate alloc] init:move(initial_url)]];
+    auto* delegate = [[ApplicationDelegate alloc] init:move(initial_url)
+                                         withCookieJar:move(cookie_jar)];
+
+    [NSApp setDelegate:delegate];
     [NSApp activateIgnoringOtherApps:YES];
 
     return event_loop.exec();

@@ -8,6 +8,7 @@
 
 #include <AK/Optional.h>
 #include <AK/URL.h>
+#include <Browser/CookieJar.h>
 
 #import <System/Cocoa.h>
 
@@ -16,9 +17,12 @@
 
 @interface ApplicationDelegate : NSObject <NSApplicationDelegate>
 
-- (nullable instancetype)init:(Optional<URL>)initial_url;
+- (nullable instancetype)init:(Optional<URL>)initial_url
+                withCookieJar:(Browser::CookieJar)cookie_jar;
 
 - (nonnull TabController*)createNewTab:(Optional<URL> const&)url;
 - (void)removeTab:(nonnull TabController*)controller;
+
+- (Browser::CookieJar&)cookieJar;
 
 @end
