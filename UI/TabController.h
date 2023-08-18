@@ -14,6 +14,8 @@
 
 - (instancetype)init:(URL)url;
 
+- (void)load:(URL const&)url;
+
 - (void)focusLocationToolbarItem;
 - (void)setLocationToolbarText:(NSString*)location;
 

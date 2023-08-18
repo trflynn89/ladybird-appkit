@@ -14,8 +14,6 @@
 
 @interface Tab : NSWindow
 
-- (instancetype)init:(URL)url;
-
 @property (nonatomic, strong) LadybirdWebView* web_view;
 
 @end
