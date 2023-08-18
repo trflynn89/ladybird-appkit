@@ -23,6 +23,5 @@
 - (void)clearHistory;
 
 - (void)focusLocationToolbarItem;
-- (void)setLocationToolbarText:(NSString*)location;
 
 @end

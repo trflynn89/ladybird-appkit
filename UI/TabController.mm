@@ -92,8 +92,9 @@ enum class IsHistoryNavigation {
         m_history.replace_current(url, m_title);
     }
 
-    auto* ns_url = Ladybird::string_to_ns_string(url.serialize());
-    [self setLocationToolbarText:ns_url];
+    auto* url_string = Ladybird::string_to_ns_string(url.serialize());
+    auto* location_search_field = (NSSearchField*)[self.location_toolbar_item view];
+    [location_search_field setStringValue:url_string];
 
     if (m_is_history_navigation == IsHistoryNavigation::Yes) {
         m_is_history_navigation = IsHistoryNavigation::No;
@@ -122,12 +123,6 @@ enum class IsHistoryNavigation {
 - (void)focusLocationToolbarItem
 {
     [self.window makeFirstResponder:self.location_toolbar_item.view];
-}
-
-- (void)setLocationToolbarText:(NSString*)location
-{
-    auto* view = (NSSearchField*)[self.location_toolbar_item view];
-    [view setStringValue:location];
 }
 
 #pragma mark - Actions
