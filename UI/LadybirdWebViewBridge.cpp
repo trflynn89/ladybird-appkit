@@ -39,6 +39,11 @@ WebViewBridge::WebViewBridge(Vector<Gfx::IntRect> screen_rects, float device_pix
 
 WebViewBridge::~WebViewBridge() = default;
 
+void WebViewBridge::set_system_visibility_state(bool is_visible)
+{
+    client().async_set_system_visibility_state(is_visible);
+}
+
 void WebViewBridge::set_viewport_rect(Gfx::IntRect viewport_rect, ForResize for_resize)
 {
     viewport_rect.set_size(scale_for_device(viewport_rect.size(), m_device_pixel_ratio));

@@ -86,6 +86,11 @@ static constexpr NSInteger CONTEXT_MENU_LOOP_TAG = 4;
     [self updateViewportRect:Ladybird::WebViewBridge::ForResize::No];
 }
 
+- (void)handleVisibility:(BOOL)is_visible
+{
+    m_web_view_bridge->set_system_visibility_state(is_visible);
+}
+
 #pragma mark - Private methods
 
 - (void)updateViewportRect:(Ladybird::WebViewBridge::ForResize)for_resize
