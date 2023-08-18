@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <AK/Forward.h>
 #include <AK/URL.h>
 
 #import <System/Cocoa.h>
@@ -15,6 +16,9 @@
 - (instancetype)init:(URL)url;
 
 - (void)load:(URL const&)url;
+
+- (void)onLoadStart:(URL const&)url isRedirect:(BOOL)isRedirect;
+- (void)onTitleChange:(DeprecatedString const&)title;
 
 - (void)focusLocationToolbarItem;
 - (void)setLocationToolbarText:(NSString*)location;
