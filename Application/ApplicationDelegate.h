@@ -7,6 +7,7 @@
 #pragma once
 
 #include <AK/Optional.h>
+#include <AK/StringView.h>
 #include <AK/URL.h>
 #include <Browser/CookieJar.h>
 
@@ -18,11 +19,13 @@
 @interface ApplicationDelegate : NSObject <NSApplicationDelegate>
 
 - (nullable instancetype)init:(Optional<URL>)initial_url
-                withCookieJar:(Browser::CookieJar)cookie_jar;
+                withCookieJar:(Browser::CookieJar)cookie_jar
+      webdriverContentIPCPath:(StringView)webdriver_content_ipc_path;
 
 - (nonnull TabController*)createNewTab:(Optional<URL> const&)url;
 - (void)removeTab:(nonnull TabController*)controller;
 
 - (Browser::CookieJar&)cookieJar;
+- (Optional<StringView> const&)webdriverContentIPCPath;
 
 @end

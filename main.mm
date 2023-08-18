@@ -36,10 +36,12 @@ ErrorOr<int> serenity_main(Main::Arguments arguments)
     Gfx::FontDatabase::set_fixed_width_font_query("Csilla 10 400 0");
 
     StringView url;
+    StringView webdriver_content_ipc_path;
 
     Core::ArgsParser args_parser;
     args_parser.set_general_help("The Ladybird web browser");
     args_parser.add_positional_argument(url, "URL to open", "url", Core::ArgsParser::Required::No);
+    args_parser.add_option(webdriver_content_ipc_path, "Path to WebDriver IPC for WebContent", "webdriver-content-path", 0, "path");
     args_parser.parse(arguments);
 
 #if 0
@@ -62,7 +64,8 @@ ErrorOr<int> serenity_main(Main::Arguments arguments)
     }
 
     auto* delegate = [[ApplicationDelegate alloc] init:move(initial_url)
-                                         withCookieJar:move(cookie_jar)];
+                                         withCookieJar:move(cookie_jar)
+                               webdriverContentIPCPath:webdriver_content_ipc_path];
 
     [NSApp setDelegate:delegate];
     [NSApp activateIgnoringOtherApps:YES];

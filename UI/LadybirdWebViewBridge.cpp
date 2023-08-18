@@ -22,13 +22,14 @@ static T scale_for_device(T size, float device_pixel_ratio)
     return size.template to_type<float>().scaled(device_pixel_ratio).template to_type<int>();
 }
 
-ErrorOr<NonnullOwnPtr<WebViewBridge>> WebViewBridge::create(Vector<Gfx::IntRect> screen_rects, float device_pixel_ratio)
+ErrorOr<NonnullOwnPtr<WebViewBridge>> WebViewBridge::create(Vector<Gfx::IntRect> screen_rects, float device_pixel_ratio, Optional<StringView> webdriver_content_ipc_path)
 {
-    return adopt_nonnull_own_or_enomem(new (nothrow) WebViewBridge(move(screen_rects), device_pixel_ratio));
+    return adopt_nonnull_own_or_enomem(new (nothrow) WebViewBridge(move(screen_rects), device_pixel_ratio, move(webdriver_content_ipc_path)));
 }
 
-WebViewBridge::WebViewBridge(Vector<Gfx::IntRect> screen_rects, float device_pixel_ratio)
+WebViewBridge::WebViewBridge(Vector<Gfx::IntRect> screen_rects, float device_pixel_ratio, Optional<StringView> webdriver_content_ipc_path)
     : m_screen_rects(move(screen_rects))
+    , m_webdriver_content_ipc_path(move(webdriver_content_ipc_path))
 {
     m_device_pixel_ratio = device_pixel_ratio;
     m_inverse_device_pixel_ratio = 1.0 / device_pixel_ratio;
@@ -242,6 +243,10 @@ void WebViewBridge::create_client(WebView::EnableCallgrindProfiling enable_callg
     if (!m_screen_rects.is_empty()) {
         // FIXME: Update the screens again if they ever change.
         client().async_update_screen_rects(m_screen_rects, 0);
+    }
+
+    if (m_webdriver_content_ipc_path.has_value()) {
+        client().async_connect_to_webdriver(*m_webdriver_content_ipc_path);
     }
 }
 

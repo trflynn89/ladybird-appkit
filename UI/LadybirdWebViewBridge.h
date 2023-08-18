@@ -20,7 +20,7 @@ namespace Ladybird {
 
 class WebViewBridge final : public WebView::ViewImplementation {
 public:
-    static ErrorOr<NonnullOwnPtr<WebViewBridge>> create(Vector<Gfx::IntRect> screen_rects, float device_pixel_ratio);
+    static ErrorOr<NonnullOwnPtr<WebViewBridge>> create(Vector<Gfx::IntRect> screen_rects, float device_pixel_ratio, Optional<StringView> webdriver_content_ipc_path);
     virtual ~WebViewBridge() override;
 
     float device_pixel_ratio() const { return m_device_pixel_ratio; }
@@ -50,7 +50,7 @@ public:
     Function<void()> on_ready_to_paint;
 
 private:
-    WebViewBridge(Vector<Gfx::IntRect> screen_rects, float device_pixel_ratio);
+    WebViewBridge(Vector<Gfx::IntRect> screen_rects, float device_pixel_ratio, Optional<StringView> webdriver_content_ipc_path);
 
     virtual void notify_server_did_layout(Badge<WebView::WebContentClient>, Gfx::IntSize content_size) override;
     virtual void notify_server_did_paint(Badge<WebView::WebContentClient>, i32 bitmap_id, Gfx::IntSize) override;
@@ -84,6 +84,8 @@ private:
     Gfx::IntRect m_viewport_rect;
 
     float m_inverse_device_pixel_ratio { 1.0 };
+
+    Optional<StringView> m_webdriver_content_ipc_path;
 };
 
 }

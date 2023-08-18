@@ -49,6 +49,7 @@ static constexpr NSInteger CONTEXT_MENU_LOOP_TAG = 4;
 - (instancetype)init
 {
     if (self = [super init]) {
+        auto* delegate = (ApplicationDelegate*)[NSApp delegate];
         auto* screens = [NSScreen screens];
 
         Vector<Gfx::IntRect> screen_rects;
@@ -61,7 +62,7 @@ static constexpr NSInteger CONTEXT_MENU_LOOP_TAG = 4;
 
         auto device_pixel_ratio = [[NSScreen mainScreen] backingScaleFactor];
 
-        m_web_view_bridge = MUST(Ladybird::WebViewBridge::create(move(screen_rects), device_pixel_ratio));
+        m_web_view_bridge = MUST(Ladybird::WebViewBridge::create(move(screen_rects), device_pixel_ratio, [delegate webdriverContentIPCPath]));
         [self setWebViewCallbacks];
     }
 

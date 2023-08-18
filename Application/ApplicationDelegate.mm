@@ -22,6 +22,8 @@
 
     // This will always be populated, but we cannot have a non-default constructible instance variable.
     Optional<Browser::CookieJar> m_cookie_jar;
+
+    Optional<StringView> m_webdriver_content_ipc_path;
 }
 
 @property (nonatomic, strong) NSMutableArray<TabController*>* managed_tabs;
@@ -40,7 +42,8 @@
 @implementation ApplicationDelegate
 
 - (instancetype)init:(Optional<URL>)initial_url
-       withCookieJar:(Browser::CookieJar)cookie_jar
+              withCookieJar:(Browser::CookieJar)cookie_jar
+    webdriverContentIPCPath:(StringView)webdriver_content_ipc_path
 {
     if (self = [super init]) {
         [NSApp setMainMenu:[[NSMenu alloc] init]];
@@ -58,7 +61,12 @@
 
         m_initial_url = move(initial_url);
         m_new_tab_page_url = Ladybird::rebase_url_on_serenity_resource_root(Browser::default_new_tab_url);
+
         m_cookie_jar = move(cookie_jar);
+
+        if (!webdriver_content_ipc_path.is_empty()) {
+            m_webdriver_content_ipc_path = webdriver_content_ipc_path;
+        }
     }
 
     return self;
@@ -90,6 +98,11 @@
 - (Browser::CookieJar&)cookieJar
 {
     return *m_cookie_jar;
+}
+
+- (Optional<StringView> const&)webdriverContentIPCPath
+{
+    return m_webdriver_content_ipc_path;
 }
 
 #pragma mark - Private methods
