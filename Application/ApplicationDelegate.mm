@@ -89,7 +89,7 @@
     [controller showWindow:nil];
 
     if (current_tab) {
-        [current_tab addTabbedWindow:controller.window ordered:NSWindowAbove];
+        [[current_tab tabGroup] addWindow:controller.window];
 
         // FIXME: Can we create the tabbed window above without it becoming active in the first place?
         if (activate_tab == Web::HTML::ActivateTab::No) {
