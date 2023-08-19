@@ -26,7 +26,6 @@ static constexpr NSInteger CONTEXT_MENU_LOOP_TAG = 4;
 @interface LadybirdWebView ()
 {
     OwnPtr<Ladybird::WebViewBridge> m_web_view_bridge;
-    Optional<NSTrackingRectTag> m_mouse_tracking_tag;
 
     URL m_context_menu_url;
     Gfx::ShareableBitmap m_context_menu_bitmap;
@@ -64,6 +63,12 @@ static constexpr NSInteger CONTEXT_MENU_LOOP_TAG = 4;
 
         m_web_view_bridge = MUST(Ladybird::WebViewBridge::create(move(screen_rects), device_pixel_ratio, [delegate webdriverContentIPCPath]));
         [self setWebViewCallbacks];
+
+        auto* area = [[NSTrackingArea alloc] initWithRect:[self bounds]
+                                                  options:NSTrackingActiveInKeyWindow | NSTrackingInVisibleRect | NSTrackingMouseMoved
+                                                    owner:self
+                                                 userInfo:nil];
+        [self addTrackingArea:area];
     }
 
     return self;
@@ -598,30 +603,6 @@ static void copy_text_to_clipboard(StringView text)
     // The origin of a NSScrollView is the lower-left corner, with the y-axis extending upwards. Instead,
     // we want the origin to be the top-left corner, with the y-axis extending downward.
     return YES;
-}
-
-- (void)updateTrackingAreas
-{
-    if (m_mouse_tracking_tag.has_value()) {
-        [self removeTrackingRect:*m_mouse_tracking_tag];
-    }
-
-    m_mouse_tracking_tag = [self addTrackingRect:[self visibleRect]
-                                           owner:self
-                                        userData:nil
-                                    assumeInside:NO];
-}
-
-- (void)mouseEntered:(NSEvent*)event
-{
-    [[self window] setAcceptsMouseMovedEvents:YES];
-    [[self window] makeFirstResponder:self];
-}
-
-- (void)mouseExited:(NSEvent*)event
-{
-    [[self window] setAcceptsMouseMovedEvents:NO];
-    [[self window] resignFirstResponder];
 }
 
 - (void)mouseMoved:(NSEvent*)event
