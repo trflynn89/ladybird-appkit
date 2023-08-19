@@ -261,6 +261,48 @@ static constexpr NSInteger CONTEXT_MENU_LOOP_TAG = 4;
         auto* delegate = (ApplicationDelegate*)[NSApp delegate];
         [delegate cookieJar].update_cookie(cookie);
     };
+
+    m_web_view_bridge->on_restore_window = [self]() {
+        [[self window] setIsMiniaturized:NO];
+        [[self window] orderFront:nil];
+    };
+
+    m_web_view_bridge->on_reposition_window = [self](auto const& position) {
+        auto frame = [[self window] frame];
+        frame.origin = Ladybird::gfx_point_to_ns_point(position);
+        [[self window] setFrame:frame display:YES];
+
+        return Ladybird::ns_point_to_gfx_point([[self window] frame].origin);
+    };
+
+    m_web_view_bridge->on_resize_window = [self](auto const& size) {
+        auto frame = [[self window] frame];
+        frame.size = Ladybird::gfx_size_to_ns_size(size);
+        [[self window] setFrame:frame display:YES];
+
+        return Ladybird::ns_size_to_gfx_size([[self window] frame].size);
+    };
+
+    m_web_view_bridge->on_maximize_window = [self]() {
+        auto frame = [[NSScreen mainScreen] frame];
+        [[self window] setFrame:frame display:YES];
+
+        return Ladybird::ns_rect_to_gfx_rect([[self window] frame]);
+    };
+
+    m_web_view_bridge->on_minimize_window = [self]() {
+        [[self window] setIsMiniaturized:YES];
+
+        return Ladybird::ns_rect_to_gfx_rect([[self window] frame]);
+    };
+
+    m_web_view_bridge->on_fullscreen_window = [self]() {
+        if (([[self window] styleMask] & NSWindowStyleMaskFullScreen) == 0) {
+            [[self window] toggleFullScreen:nil];
+        }
+
+        return Ladybird::ns_rect_to_gfx_rect([[self window] frame]);
+    };
 }
 
 - (Tab*)tab
