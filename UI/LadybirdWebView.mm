@@ -35,6 +35,7 @@ static constexpr NSInteger CONTEXT_MENU_LOOP_TAG = 4;
 @property (nonatomic, strong) NSMenu* link_context_menu;
 @property (nonatomic, strong) NSMenu* image_context_menu;
 @property (nonatomic, strong) NSMenu* video_context_menu;
+@property (nonatomic, strong) NSTextField* status_label;
 
 @end
 
@@ -44,6 +45,7 @@ static constexpr NSInteger CONTEXT_MENU_LOOP_TAG = 4;
 @synthesize link_context_menu = _link_context_menu;
 @synthesize image_context_menu = _image_context_menu;
 @synthesize video_context_menu = _video_context_menu;
+@synthesize status_label = _status_label;
 
 - (instancetype)init
 {
@@ -168,6 +170,22 @@ static constexpr NSInteger CONTEXT_MENU_LOOP_TAG = 4;
 
     m_web_view_bridge->on_refresh = [self]() {
         [[self tabController] reload:nil];
+    };
+
+    m_web_view_bridge->on_link_hover = [self](auto const& url) {
+        auto* url_string = Ladybird::string_to_ns_string(url.serialize());
+
+        [self.status_label setStringValue:url_string];
+        [self.status_label sizeToFit];
+
+        auto position = NSMakePoint(10, [self visibleRect].size.height - self.status_label.frame.size.height - 10);
+        [self.status_label setFrameOrigin:position];
+
+        [self.status_label setHidden:NO];
+    };
+
+    m_web_view_bridge->on_link_unhover = [self]() {
+        [self.status_label setHidden:YES];
     };
 
     m_web_view_bridge->on_link_click = [self](auto const& url, auto const& target, unsigned modifiers) {
@@ -537,6 +555,20 @@ static void copy_text_to_clipboard(StringView text)
     }
 
     return _video_context_menu;
+}
+
+- (NSTextField*)status_label
+{
+    if (!_status_label) {
+        _status_label = [NSTextField labelWithString:@""];
+        [_status_label setDrawsBackground:YES];
+        [_status_label setBordered:YES];
+        [_status_label setHidden:YES];
+
+        [self addSubview:_status_label];
+    }
+
+    return _status_label;
 }
 
 #pragma mark - NSView
