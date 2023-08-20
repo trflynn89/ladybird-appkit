@@ -67,6 +67,9 @@
         if (!webdriver_content_ipc_path.is_empty()) {
             m_webdriver_content_ipc_path = webdriver_content_ipc_path;
         }
+
+        // Reduce the tooltip delay, as the default delay feels quite long.
+        [[NSUserDefaults standardUserDefaults] setObject:@100 forKey:@"NSInitialToolTipDelay"];
     }
 
     return self;

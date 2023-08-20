@@ -50,6 +50,8 @@ public:
 
     Function<void(Gfx::IntSize)> on_layout;
     Function<void()> on_ready_to_paint;
+    Function<void(DeprecatedString const&)> on_tooltip_entered;
+    Function<void()> on_tooltip_left;
 
 private:
     WebViewBridge(Vector<Gfx::IntRect> screen_rects, float device_pixel_ratio, Optional<StringView> webdriver_content_ipc_path);

@@ -171,9 +171,9 @@ static constexpr NSInteger CONTEXT_MENU_LOOP_TAG = 4;
             return;
         }
 
-        auto data = [NSData dataWithBytes:png.value().data() length:png.value().size()];
+        auto* data = [NSData dataWithBytes:png.value().data() length:png.value().size()];
 
-        auto favicon = [[NSImage alloc] initWithData:data];
+        auto* favicon = [[NSImage alloc] initWithData:data];
         [favicon setResizingMode:NSImageResizingModeStretch];
         [favicon setSize:NSMakeSize(FAVICON_SIZE, FAVICON_SIZE)];
 
@@ -190,6 +190,14 @@ static constexpr NSInteger CONTEXT_MENU_LOOP_TAG = 4;
 
     m_web_view_bridge->on_refresh = [self]() {
         [[self tabController] reload:nil];
+    };
+
+    m_web_view_bridge->on_tooltip_entered = [self](auto const& tooltip) {
+        self.toolTip = Ladybird::string_to_ns_string(tooltip);
+    };
+
+    m_web_view_bridge->on_tooltip_left = [self]() {
+        self.toolTip = nil;
     };
 
     m_web_view_bridge->on_link_hover = [self](auto const& url) {
@@ -421,7 +429,7 @@ static void copy_text_to_clipboard(StringView text)
         return;
     }
 
-    auto data = [NSData dataWithBytes:png.value().data() length:png.value().size()];
+    auto* data = [NSData dataWithBytes:png.value().data() length:png.value().size()];
 
     auto* pasteBoard = [NSPasteboard generalPasteboard];
     [pasteBoard clearContents];
