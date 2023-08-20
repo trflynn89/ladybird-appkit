@@ -52,6 +52,8 @@ public:
     Function<void(Gfx::IntSize)> on_layout;
     Function<void()> on_ready_to_paint;
 
+    Function<void(Gfx::IntPoint)> on_scroll;
+
     Function<void(Gfx::StandardCursor)> on_cursor_change;
 
     Function<void(DeprecatedString const&)> on_tooltip_entered;

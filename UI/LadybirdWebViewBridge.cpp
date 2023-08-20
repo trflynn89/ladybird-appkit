@@ -149,16 +149,39 @@ void WebViewBridge::notify_server_did_request_cursor_change(Badge<WebView::WebCo
         on_cursor_change(cursor);
 }
 
-void WebViewBridge::notify_server_did_request_scroll(Badge<WebView::WebContentClient>, i32, i32)
+void WebViewBridge::notify_server_did_request_scroll(Badge<WebView::WebContentClient>, i32 x_delta, i32 y_delta)
 {
+    auto position = m_viewport_rect.location();
+    position.set_x(position.x() + x_delta);
+    position.set_y(position.y() + y_delta);
+
+    if (on_scroll)
+        on_scroll(position);
 }
 
-void WebViewBridge::notify_server_did_request_scroll_to(Badge<WebView::WebContentClient>, Gfx::IntPoint)
+void WebViewBridge::notify_server_did_request_scroll_to(Badge<WebView::WebContentClient>, Gfx::IntPoint position)
 {
+    if (on_scroll)
+        on_scroll(position);
 }
 
-void WebViewBridge::notify_server_did_request_scroll_into_view(Badge<WebView::WebContentClient>, Gfx::IntRect const&)
+void WebViewBridge::notify_server_did_request_scroll_into_view(Badge<WebView::WebContentClient>, Gfx::IntRect const& rect)
 {
+    if (m_viewport_rect.contains(rect))
+        return;
+
+    auto position = m_viewport_rect.location();
+
+    if (rect.top() < m_viewport_rect.top()) {
+        position.set_y(rect.top());
+    } else if (rect.top() > m_viewport_rect.top() && rect.bottom() > m_viewport_rect.bottom()) {
+        position.set_y(rect.bottom() - m_viewport_rect.height());
+    } else {
+        return;
+    }
+
+    if (on_scroll)
+        on_scroll(position);
 }
 
 void WebViewBridge::notify_server_did_enter_tooltip_area(Badge<WebView::WebContentClient>, Gfx::IntPoint, DeprecatedString const& tooltip)

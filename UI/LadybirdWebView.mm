@@ -198,6 +198,12 @@ struct HideCursor {
         [[self tab] onFaviconChange:favicon];
     };
 
+    m_web_view_bridge->on_scroll = [self](auto position) {
+        [self scrollToPoint:Ladybird::gfx_point_to_ns_point(position)];
+        [[self scrollView] reflectScrolledClipView:self];
+        [self updateViewportRect:Ladybird::WebViewBridge::ForResize::No];
+    };
+
     m_web_view_bridge->on_cursor_change = [self](auto cursor) {
         if (cursor == Gfx::StandardCursor::Hidden) {
             if (!m_hidden_cursor.has_value()) {
