@@ -53,6 +53,7 @@ struct HideCursor {
 @property (nonatomic, strong) NSMenu* image_context_menu;
 @property (nonatomic, strong) NSMenu* video_context_menu;
 @property (nonatomic, strong) NSTextField* status_label;
+@property (nonatomic, strong) NSAlert* dialog;
 
 @end
 
@@ -384,6 +385,91 @@ struct HideCursor {
 
         auto* event = Ladybird::create_context_menu_mouse_event(self, position);
         [NSMenu popUpContextMenu:self.video_context_menu withEvent:event forView:self];
+    };
+
+    m_web_view_bridge->on_alert = [self](auto const& message) {
+        auto* ns_message = Ladybird::string_to_ns_string(message);
+
+        self.dialog = [[NSAlert alloc] init];
+        [self.dialog setMessageText:ns_message];
+
+        [self.dialog beginSheetModalForWindow:[self window]
+                            completionHandler:^(NSModalResponse) {
+                                m_web_view_bridge->alert_closed();
+                                self.dialog = nil;
+                            }];
+    };
+
+    m_web_view_bridge->on_confirm = [self](auto const& message) {
+        auto* ns_message = Ladybird::string_to_ns_string(message);
+
+        self.dialog = [[NSAlert alloc] init];
+        [[self.dialog addButtonWithTitle:@"OK"] setTag:NSModalResponseOK];
+        [[self.dialog addButtonWithTitle:@"Cancel"] setTag:NSModalResponseCancel];
+        [self.dialog setMessageText:ns_message];
+
+        [self.dialog beginSheetModalForWindow:[self window]
+                            completionHandler:^(NSModalResponse response) {
+                                m_web_view_bridge->confirm_closed(response == NSModalResponseOK);
+                                self.dialog = nil;
+                            }];
+    };
+
+    m_web_view_bridge->on_prompt = [self](auto const& message, auto const& default_) {
+        auto* ns_message = Ladybird::string_to_ns_string(message);
+        auto* ns_default = Ladybird::string_to_ns_string(default_);
+
+        auto* input = [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 200, 24)];
+        [input setStringValue:ns_default];
+
+        self.dialog = [[NSAlert alloc] init];
+        [[self.dialog addButtonWithTitle:@"OK"] setTag:NSModalResponseOK];
+        [[self.dialog addButtonWithTitle:@"Cancel"] setTag:NSModalResponseCancel];
+        [self.dialog setMessageText:ns_message];
+        [self.dialog setAccessoryView:input];
+
+        self.dialog.window.initialFirstResponder = input;
+
+        [self.dialog beginSheetModalForWindow:[self window]
+                            completionHandler:^(NSModalResponse response) {
+                                Optional<String> text;
+
+                                if (response == NSModalResponseOK) {
+                                    text = Ladybird::ns_string_to_string([input stringValue]);
+                                }
+
+                                m_web_view_bridge->prompt_closed(move(text));
+                                self.dialog = nil;
+                            }];
+    };
+
+    m_web_view_bridge->on_prompt_text_changed = [self](auto const& message) {
+        if (!self.dialog || ![self.dialog accessoryView]) {
+            return;
+        }
+
+        auto* ns_message = Ladybird::string_to_ns_string(message);
+
+        auto* input = (NSTextField*)[self.dialog accessoryView];
+        [input setStringValue:ns_message];
+    };
+
+    m_web_view_bridge->on_dialog_accepted = [self]() {
+        if (!self.dialog) {
+            return;
+        }
+
+        [[self window] endSheet:[[self dialog] window]
+                     returnCode:NSModalResponseOK];
+    };
+
+    m_web_view_bridge->on_dialog_dismissed = [self]() {
+        if (!self.dialog) {
+            return;
+        }
+
+        [[self window] endSheet:[[self dialog] window]
+                     returnCode:NSModalResponseCancel];
     };
 
     m_web_view_bridge->on_get_all_cookies = [](auto const& url) {

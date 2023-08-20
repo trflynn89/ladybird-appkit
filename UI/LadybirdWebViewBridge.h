@@ -51,9 +51,24 @@ public:
 
     Function<void(Gfx::IntSize)> on_layout;
     Function<void()> on_ready_to_paint;
+
     Function<void(Gfx::StandardCursor)> on_cursor_change;
+
     Function<void(DeprecatedString const&)> on_tooltip_entered;
     Function<void()> on_tooltip_left;
+
+    Function<void(String const&)> on_alert;
+    void alert_closed();
+
+    Function<void(String const&)> on_confirm;
+    void confirm_closed(bool);
+
+    Function<void(String const&, String const&)> on_prompt;
+    Function<void(String const&)> on_prompt_text_changed;
+    void prompt_closed(Optional<String>);
+
+    Function<void()> on_dialog_accepted;
+    Function<void()> on_dialog_dismissed;
 
 private:
     WebViewBridge(Vector<Gfx::IntRect> screen_rects, float device_pixel_ratio, Optional<StringView> webdriver_content_ipc_path);
