@@ -143,8 +143,10 @@ void WebViewBridge::notify_server_did_change_selection(Badge<WebView::WebContent
     request_repaint();
 }
 
-void WebViewBridge::notify_server_did_request_cursor_change(Badge<WebView::WebContentClient>, Gfx::StandardCursor)
+void WebViewBridge::notify_server_did_request_cursor_change(Badge<WebView::WebContentClient>, Gfx::StandardCursor cursor)
 {
+    if (on_cursor_change)
+        on_cursor_change(cursor);
 }
 
 void WebViewBridge::notify_server_did_request_scroll(Badge<WebView::WebContentClient>, i32, i32)

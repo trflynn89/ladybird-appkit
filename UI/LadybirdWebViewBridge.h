@@ -10,6 +10,7 @@
 #include <LibGfx/Point.h>
 #include <LibGfx/Rect.h>
 #include <LibGfx/Size.h>
+#include <LibGfx/StandardCursor.h>
 #include <LibWebView/ViewImplementation.h>
 
 // FIXME: These should not be included outside of Serenity.
@@ -50,6 +51,7 @@ public:
 
     Function<void(Gfx::IntSize)> on_layout;
     Function<void()> on_ready_to_paint;
+    Function<void(Gfx::StandardCursor)> on_cursor_change;
     Function<void(DeprecatedString const&)> on_tooltip_entered;
     Function<void()> on_tooltip_left;
 

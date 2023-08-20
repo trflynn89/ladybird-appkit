@@ -23,12 +23,29 @@ static constexpr NSInteger CONTEXT_MENU_MUTE_UNMUTE_TAG = 2;
 static constexpr NSInteger CONTEXT_MENU_CONTROLS_TAG = 3;
 static constexpr NSInteger CONTEXT_MENU_LOOP_TAG = 4;
 
+// Calls to [NSCursor hide] and [NSCursor unhide] must be balanced. We use this struct to ensure
+// we only call [NSCursor hide] once and to ensure that we do call [NSCursor unhide].
+// https://developer.apple.com/documentation/appkit/nscursor#1651301
+struct HideCursor {
+    HideCursor()
+    {
+        [NSCursor hide];
+    }
+
+    ~HideCursor()
+    {
+        [NSCursor unhide];
+    }
+};
+
 @interface LadybirdWebView ()
 {
     OwnPtr<Ladybird::WebViewBridge> m_web_view_bridge;
 
     URL m_context_menu_url;
     Gfx::ShareableBitmap m_context_menu_bitmap;
+
+    Optional<HideCursor> m_hidden_cursor;
 }
 
 @property (nonatomic, strong) NSMenu* page_context_menu;
@@ -178,6 +195,87 @@ static constexpr NSInteger CONTEXT_MENU_LOOP_TAG = 4;
         [favicon setSize:NSMakeSize(FAVICON_SIZE, FAVICON_SIZE)];
 
         [[self tab] onFaviconChange:favicon];
+    };
+
+    m_web_view_bridge->on_cursor_change = [self](auto cursor) {
+        if (cursor == Gfx::StandardCursor::Hidden) {
+            if (!m_hidden_cursor.has_value()) {
+                m_hidden_cursor.emplace();
+            }
+
+            return;
+        }
+
+        m_hidden_cursor.clear();
+
+        switch (cursor) {
+        case Gfx::StandardCursor::Arrow:
+            [[NSCursor arrowCursor] set];
+            break;
+        case Gfx::StandardCursor::Crosshair:
+            [[NSCursor crosshairCursor] set];
+            break;
+        case Gfx::StandardCursor::IBeam:
+            [[NSCursor IBeamCursor] set];
+            break;
+        case Gfx::StandardCursor::ResizeHorizontal:
+            [[NSCursor resizeLeftRightCursor] set];
+            break;
+        case Gfx::StandardCursor::ResizeVertical:
+            [[NSCursor resizeUpDownCursor] set];
+            break;
+        case Gfx::StandardCursor::ResizeDiagonalTLBR:
+            // FIXME: AppKit does not have a corresponding cursor, so we should make one.
+            [[NSCursor arrowCursor] set];
+            break;
+        case Gfx::StandardCursor::ResizeDiagonalBLTR:
+            // FIXME: AppKit does not have a corresponding cursor, so we should make one.
+            [[NSCursor arrowCursor] set];
+            break;
+        case Gfx::StandardCursor::ResizeColumn:
+            // FIXME: AppKit does not have a corresponding cursor, so we should make one.
+            [[NSCursor arrowCursor] set];
+            break;
+        case Gfx::StandardCursor::ResizeRow:
+            // FIXME: AppKit does not have a corresponding cursor, so we should make one.
+            [[NSCursor arrowCursor] set];
+            break;
+        case Gfx::StandardCursor::Hand:
+            [[NSCursor pointingHandCursor] set];
+            break;
+        case Gfx::StandardCursor::Help:
+            // FIXME: AppKit does not have a corresponding cursor, so we should make one.
+            [[NSCursor arrowCursor] set];
+            break;
+        case Gfx::StandardCursor::Drag:
+            [[NSCursor closedHandCursor] set];
+            break;
+        case Gfx::StandardCursor::DragCopy:
+            [[NSCursor dragCopyCursor] set];
+            break;
+        case Gfx::StandardCursor::Move:
+            // FIXME: AppKit does not have a corresponding cursor, so we should make one.
+            [[NSCursor dragCopyCursor] set];
+            break;
+        case Gfx::StandardCursor::Wait:
+            // FIXME: AppKit does not have a corresponding cursor, so we should make one.
+            [[NSCursor arrowCursor] set];
+            break;
+        case Gfx::StandardCursor::Disallowed:
+            // FIXME: AppKit does not have a corresponding cursor, so we should make one.
+            [[NSCursor arrowCursor] set];
+            break;
+        case Gfx::StandardCursor::Eyedropper:
+            // FIXME: AppKit does not have a corresponding cursor, so we should make one.
+            [[NSCursor arrowCursor] set];
+            break;
+        case Gfx::StandardCursor::Zoom:
+            // FIXME: AppKit does not have a corresponding cursor, so we should make one.
+            [[NSCursor arrowCursor] set];
+            break;
+        default:
+            break;
+        }
     };
 
     m_web_view_bridge->on_navigate_back = [self]() {
