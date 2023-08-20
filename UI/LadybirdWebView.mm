@@ -864,6 +864,8 @@ static void copy_text_to_clipboard(StringView text)
 
 - (void)mouseDown:(NSEvent*)event
 {
+    [[self window] makeFirstResponder:self];
+
     auto [position, button, modifiers] = Ladybird::ns_event_to_mouse_event(event, self, GUI::MouseButton::Primary);
 
     if (event.clickCount % 2 == 0) {
@@ -887,6 +889,8 @@ static void copy_text_to_clipboard(StringView text)
 
 - (void)rightMouseDown:(NSEvent*)event
 {
+    [[self window] makeFirstResponder:self];
+
     auto [position, button, modifiers] = Ladybird::ns_event_to_mouse_event(event, self, GUI::MouseButton::Secondary);
 
     if (event.clickCount % 2 == 0) {
