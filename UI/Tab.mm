@@ -7,6 +7,9 @@
 #import <UI/LadybirdWebView.h>
 #import <UI/Tab.h>
 #import <UI/TabController.h>
+#import <Utilities/Conversions.h>
+
+#include <Ladybird/Utilities.h>
 
 #if !__has_feature(objc_arc)
 #    error "This project requires ARC"
@@ -15,7 +18,31 @@
 static constexpr CGFloat const WINDOW_WIDTH = 1000;
 static constexpr CGFloat const WINDOW_HEIGHT = 800;
 
+@interface Tab ()
+
+@property (nonatomic, strong) NSString* title;
+@property (nonatomic, strong) NSImage* favicon;
+
+@end
+
 @implementation Tab
+
+@dynamic title;
+
++ (NSImage*)defaultFavicon
+{
+    static NSImage* default_favicon;
+    static dispatch_once_t token;
+
+    dispatch_once(&token, ^{
+        auto default_favicon_path = MUST(String::formatted("{}/res/icons/16x16/app-browser.png", s_serenity_resource_root));
+        auto* ns_default_favicon_path = Ladybird::string_to_ns_string(default_favicon_path);
+
+        default_favicon = [[NSImage alloc] initWithContentsOfFile:ns_default_favicon_path];
+    });
+
+    return default_favicon;
+}
 
 - (instancetype)init
 {
@@ -35,7 +62,10 @@ static constexpr CGFloat const WINDOW_HEIGHT = 800;
         self.web_view = [[LadybirdWebView alloc] init];
         [self.web_view setPostsBoundsChangedNotifications:YES];
 
-        [self setTitle:@"New Tab - Ladybird"];
+        self.favicon = [Tab defaultFavicon];
+        self.title = @"New Tab";
+        [self updateTabTitleAndFavicon];
+
         [self setTitleVisibility:NSWindowTitleHidden];
         [self setIsVisible:YES];
 
@@ -59,7 +89,56 @@ static constexpr CGFloat const WINDOW_HEIGHT = 800;
     return self;
 }
 
+- (void)onTitleChange:(NSString*)title
+{
+    self.title = title;
+    [self updateTabTitleAndFavicon];
+}
+
+- (void)onFaviconChange:(NSImage*)favicon
+{
+    self.favicon = favicon;
+    [self updateTabTitleAndFavicon];
+}
+
 #pragma mark - Private methods
+
+- (void)updateTabTitleAndFavicon
+{
+    auto* favicon_attachment = [[NSTextAttachment alloc] init];
+    favicon_attachment.image = self.favicon;
+
+    // By default, the image attachment will "automatically adapt to the surrounding font and color
+    // attributes in attributed strings". Therefore, we specify a clear color here to prevent the
+    // favicon from having a weird tint.
+    auto* favicon_attribute = (NSMutableAttributedString*)[NSMutableAttributedString attributedStringWithAttachment:favicon_attachment];
+    [favicon_attribute addAttribute:NSForegroundColorAttributeName
+                              value:[NSColor clearColor]
+                              range:NSMakeRange(0, [favicon_attribute length])];
+
+    // By default, the text attachment will be aligned to the bottom of the string. We have to manually
+    // try to center it vertically.
+    auto* title_font = [NSFont userFontOfSize:12];
+    auto line_height = ceilf(title_font.ascender + abs(title_font.descender) + title_font.leading);
+
+    auto* title_attributes = @{
+        NSFontAttributeName : title_font,
+        NSForegroundColorAttributeName : [NSColor textColor],
+        NSBaselineOffsetAttributeName : @((self.favicon.size.height - line_height) / 2)
+    };
+
+    auto* title_attribute = [[NSAttributedString alloc] initWithString:self.title
+                                                            attributes:title_attributes];
+
+    auto* spacing_attribute = [[NSAttributedString alloc] initWithString:@" "];
+
+    auto* title_and_favicon = [[NSMutableAttributedString alloc] init];
+    [title_and_favicon appendAttributedString:favicon_attribute];
+    [title_and_favicon appendAttributedString:spacing_attribute];
+    [title_and_favicon appendAttributedString:title_attribute];
+
+    [[self tab] setAttributedTitle:title_and_favicon];
+}
 
 - (void)onContentScroll:(NSNotification*)notification
 {

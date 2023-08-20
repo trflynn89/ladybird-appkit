@@ -158,6 +158,26 @@ static constexpr NSInteger CONTEXT_MENU_LOOP_TAG = 4;
 
     m_web_view_bridge->on_title_change = [self](auto const& title) {
         [[self tabController] onTitleChange:title];
+
+        auto* ns_title = Ladybird::string_to_ns_string(title);
+        [[self tab] onTitleChange:ns_title];
+    };
+
+    m_web_view_bridge->on_favicon_change = [self](auto const& bitmap) {
+        static constexpr size_t FAVICON_SIZE = 16;
+
+        auto png = Gfx::PNGWriter::encode(bitmap);
+        if (png.is_error()) {
+            return;
+        }
+
+        auto data = [NSData dataWithBytes:png.value().data() length:png.value().size()];
+
+        auto favicon = [[NSImage alloc] initWithData:data];
+        [favicon setResizingMode:NSImageResizingModeStretch];
+        [favicon setSize:NSMakeSize(FAVICON_SIZE, FAVICON_SIZE)];
+
+        [[self tab] onFaviconChange:favicon];
     };
 
     m_web_view_bridge->on_navigate_back = [self]() {

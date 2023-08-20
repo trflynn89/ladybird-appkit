@@ -14,6 +14,9 @@
 
 @interface Tab : NSWindow
 
+- (void)onTitleChange:(NSString*)title;
+- (void)onFaviconChange:(NSImage*)favicon;
+
 @property (nonatomic, strong) LadybirdWebView* web_view;
 
 @end

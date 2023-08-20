@@ -109,9 +109,6 @@ enum class IsHistoryNavigation {
 {
     m_title = title;
     m_history.update_title(m_title);
-
-    auto* ns_title = Ladybird::string_to_ns_string(m_title);
-    [[self tab] setTitle:ns_title];
 }
 
 - (void)navigateBack:(id)sender
