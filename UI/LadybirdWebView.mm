@@ -172,6 +172,7 @@ struct HideCursor {
 
     m_web_view_bridge->on_load_start = [self](auto const& url, bool is_redirect) {
         [[self tabController] onLoadStart:url isRedirect:is_redirect];
+        [[self tab] onLoadStart:url];
     };
 
     m_web_view_bridge->on_title_change = [self](auto const& title) {

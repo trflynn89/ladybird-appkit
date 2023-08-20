@@ -89,6 +89,15 @@ static constexpr CGFloat const WINDOW_HEIGHT = 800;
     return self;
 }
 
+#pragma mark - Public methods
+
+- (void)onLoadStart:(URL const&)url
+{
+    self.title = Ladybird::string_to_ns_string(url.serialize());
+    self.favicon = [Tab defaultFavicon];
+    [self updateTabTitleAndFavicon];
+}
+
 - (void)onTitleChange:(NSString*)title
 {
     self.title = title;

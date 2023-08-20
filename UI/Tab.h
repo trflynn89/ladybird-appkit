@@ -14,6 +14,7 @@
 
 @interface Tab : NSWindow
 
+- (void)onLoadStart:(URL const&)url;
 - (void)onTitleChange:(NSString*)title;
 - (void)onFaviconChange:(NSImage*)favicon;
 
