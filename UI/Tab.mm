@@ -118,19 +118,18 @@ static constexpr CGFloat const WINDOW_HEIGHT = 800;
 
     // By default, the text attachment will be aligned to the bottom of the string. We have to manually
     // try to center it vertically.
-    auto* title_font = [NSFont userFontOfSize:12];
-    auto line_height = ceilf(title_font.ascender + abs(title_font.descender) + title_font.leading);
-
+    // FIXME: Figure out a way to programmatically arrive at a good NSBaselineOffsetAttributeName. Using
+    //        half the distance between the font's line height and the height of the favicon produces a
+    //        value that results in the title being aligned too low still.
     auto* title_attributes = @{
-        NSFontAttributeName : title_font,
         NSForegroundColorAttributeName : [NSColor textColor],
-        NSBaselineOffsetAttributeName : @((self.favicon.size.height - line_height) / 2)
+        NSBaselineOffsetAttributeName : @3
     };
 
     auto* title_attribute = [[NSAttributedString alloc] initWithString:self.title
                                                             attributes:title_attributes];
 
-    auto* spacing_attribute = [[NSAttributedString alloc] initWithString:@" "];
+    auto* spacing_attribute = [[NSAttributedString alloc] initWithString:@"  "];
 
     auto* title_and_favicon = [[NSMutableAttributedString alloc] init];
     [title_and_favicon appendAttributedString:favicon_attribute];
