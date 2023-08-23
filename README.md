@@ -1,3 +1,7 @@
+# ARCHIVED
+
+[This has been merged upstream!](https://github.com/SerenityOS/serenity/commit/5722d0025b6f44356c9f4aad0fc68688c3f57ec3)
+
 # Ladybird - AppKit UI
 
 This project provides an AppKit-based chrome for the [SerenityOS LibWeb](https://github.com/SerenityOS/serenity)
